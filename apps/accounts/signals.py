@@ -16,7 +16,7 @@ ROLE_GROUPS = {
 # Model permissions (for Django Admin) granted to each role group. Application pages enforce
 # access by role in the views; these permissions only govern /django-admin/, which only
 # administrators can open. Lecturers, students and researchers receive none.
-ADMIN_ADMIN_APPS = ("academics", "timetables")
+ADMIN_ADMIN_APPS = ("academics", "timetables", "reminders")
 
 
 def _admin_permissions():

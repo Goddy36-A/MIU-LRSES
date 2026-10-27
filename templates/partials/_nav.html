@@ -13,6 +13,10 @@
   <li class="nav-heading">Timetable</li>
   <li><a class="nav-link {% if ns == 'timetables' and name|slice:':5' == 'venue' %}active{% endif %}" href="{% url 'timetables:venue_list' %}">Venues</a></li>
   <li><a class="nav-link {% if ns == 'timetables' and name|slice:':7' == 'session' %}active{% endif %}" href="{% url 'timetables:session_list' %}">Lectures</a></li>
+  <li class="nav-heading">Reminders</li>
+  <li><a class="nav-link {% if name == 'overview' or name == 'config_edit' or name == 'interval_add' or name == 'interval_edit' %}{% if ns == 'reminders' %}active{% endif %}{% endif %}" href="{% url 'reminders:overview' %}">Reminder settings</a></li>
+  <li><a class="nav-link {% if ns == 'reminders' and name == 'queue' %}active{% endif %}" href="{% url 'reminders:queue' %}">Scheduled reminders</a></li>
+  <li><a class="nav-link {% if ns == 'reminders' and name == 'run_list' %}active{% endif %}" href="{% url 'reminders:run_list' %}">Processing runs</a></li>
   <li class="nav-heading">Administration</li>
   <li><a class="nav-link {% if name == 'user_list' or name == 'user_add' or name == 'user_edit' %}active{% endif %}" href="{% url 'accounts:user_list' %}">User accounts</a></li>
   <li><a class="nav-link {% if name == 'audit_list' %}active{% endif %}" href="{% url 'accounts:audit_list' %}">Audit log</a></li>
@@ -25,6 +29,7 @@
   <li><a class="nav-link {% if name == 'dashboard_student' %}active{% endif %}" href="{% url 'accounts:dashboard_student' %}">Dashboard</a></li>
   <li><a class="nav-link {% if name == 'my_timetable' %}active{% endif %}" href="{% url 'timetables:my_timetable' %}">My timetable</a></li>
   <li><a class="nav-link {% if name == 'my_courses' %}active{% endif %}" href="{% url 'academics:my_courses' %}">My courses</a></li>
+  <li><a class="nav-link {% if name == 'notifications' %}active{% endif %}" href="{% url 'reminders:notifications' %}">Notifications{% if unread_notifications %} <span class="badge text-bg-warning ms-1" data-unread-badge>{{ unread_notifications }}</span>{% endif %}</a></li>
 {% elif request.user.is_researcher %}
   <li><a class="nav-link {% if name == 'dashboard_researcher' %}active{% endif %}" href="{% url 'accounts:dashboard_researcher' %}">Dashboard</a></li>
 {% endif %}

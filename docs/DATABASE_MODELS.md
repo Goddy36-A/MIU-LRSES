@@ -21,4 +21,15 @@ All tables are created by Django migrations. Foreign keys to history/records use
 - **LectureSession**: offering, lecturer, venue, start_at, end_at (aware datetimes), topic, status (scheduled/cancelled), cancellation_reason, created_by, created_at, updated_at.
 - **LectureChange**: session, change_type (created/rescheduled/cancelled), old/new start, end and venue, reason, changed_by, changed_at.
 
-Tables for reminders, attendance, assignments, research and questionnaires are added in later phases.
+## reminders
+- **ReminderConfig**: single row (pk 1). reminders_enabled, updated_at, updated_by.
+- **ReminderInterval**: minutes_before (unique, 1-10080), label, is_active. Seeded: 1440, 60, 15. Deactivated, never deleted.
+- **Notification**: recipient -> User, session -> LectureSession, kind (reminder / schedule_change), interval -> ReminderInterval (reminders only),
+  minutes_before (snapshot), change -> LectureChange (notices only), title, message, scheduled_for, created_at,
+  status (pending/delivered/cancelled/expired/failed), status_detail, attempts, processed_at, delivered_at, read_at, superseded.
+  Constraints: one non-superseded reminder per (recipient, session, interval); one change notice per (recipient, change).
+  Recipients only ever see their own *delivered* rows.
+- **ReminderRun**: one execution of the processor. started/finished, trigger (command/admin), triggered_by, status,
+  sync_created/updated/cancelled, due_found, delivered, expired, cancelled, failed, skipped, notes.
+
+Tables for attendance, assignments, research and questionnaires are added in later phases.

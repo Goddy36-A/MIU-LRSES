@@ -44,7 +44,8 @@
   </div>
 </div>
 <div class="mt-3"><a class="btn btn-primary" href="{% url 'accounts:user_add' %}">Add user</a>
-<a class="btn btn-outline-primary" href="{% url 'accounts:user_list' %}">Manage users</a></div>
+<a class="btn btn-outline-primary" href="{% url 'accounts:user_list' %}">Manage users</a>
+<a class="btn btn-outline-primary" href="{% url 'reminders:overview' %}">Lecture reminders{% if pending_reminders %} ({{ pending_reminders }} pending){% endif %}</a></div>
 {{ chart_labels|json_script:"chart-labels" }}
 {{ chart_values|json_script:"chart-values" }}
 {% endblock %}

@@ -37,14 +37,14 @@ Then open http://127.0.0.1:8000/ and sign in with the account you created.
 ```
 python manage.py test
 ```
-Phase 1 + 2: 102 tests, all passing in the sandbox run (Linux, Python 3.12).
+Phases 1-3: 147 tests, all passing in the development sandbox run (Linux, Python 3.12). Not yet run on Windows.
 
 ## Roles and what each can do now
-| Role | Can do (Phases 1-2) |
+| Role | Can do (Phases 1-3) |
 |---|---|
-| System administrator | Everything below: user accounts, audit log, programmes, courses, academic years, semesters, course offerings, student and lecturer registration, enrolment (single and bulk), venues, all lectures (create, edit details, reschedule, cancel), Django Admin |
+| System administrator | Everything below: user accounts, audit log, programmes, courses, academic years, semesters, course offerings, student and lecturer registration, enrolment (single and bulk), venues, all lectures (create, edit details, reschedule, cancel), reminder intervals and on/off switch, scheduled-reminder list, processing runs, Django Admin |
 | Lecturer | View assigned courses and rosters; view, schedule, reschedule and cancel lectures **only for offerings assigned to them** |
-| Student | View own courses and own timetable (upcoming/past, cancelled lectures marked) |
+| Student | View own courses and own timetable (upcoming/past, cancelled lectures marked); receive, read and mark as read their own in-app lecture reminders and schedule-change notices |
 | Researcher | Placeholder dashboard only (research module arrives in Phase 5) |
 
 Roles are exclusive and enforced on the server (403 for the wrong role, 404 for another lecturer's records).
@@ -59,12 +59,21 @@ A researcher does not inherit administrator rights. Only administrators and supe
   scheduled lecture for the same lecturer, the same venue, the same course offering, or any student enrolled in
   the offering. Back-to-back lectures are allowed. Cancelled lectures never conflict.
 - **Reschedule / cancel:** each change is stored in the lecture's history (who, when, old/new time and venue,
-  reason) and audited. Cancelled lectures cannot be rescheduled or edited. Phase 3 will use the `lecture_changed`
-  signal to update or cancel pending reminders; nothing is sent yet.
+  reason) and audited. Cancelled lectures cannot be rescheduled or edited. Changes update or cancel pending reminders (Phase 3).
 - **Time zone:** times are stored timezone-aware and entered/displayed in Africa/Kampala.
 - **Assumptions:** a course belongs to one programme; accounts are created by administrators (no self-registration);
   records are deactivated rather than deleted (related records are protected from deletion); students may enrol
   in courses outside their programme (electives).
+
+## Lecture reminders (Phase 3)
+Reminders (default 24 hours, 1 hour and 15 minutes before a lecture) are created when lectures are scheduled and
+delivered by `python manage.py process_reminders`. **Delivery is to the in-app notification system only** - no
+email, SMS, WhatsApp, Telegram or browser push. **Reminders are only delivered while that command runs**, so
+schedule it (every 5 minutes) with Windows Task Scheduler. Full details, rules, statuses and the Task Scheduler steps
+are in [docs/REMINDERS.md](docs/REMINDERS.md).
+```
+python manage.py process_reminders
+```
 
 ## Password reset
 Reset emails are printed to the console window running `runserver`; no email is actually sent unless you

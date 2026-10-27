@@ -102,9 +102,11 @@ class SessionDetail(SessionObjectMixin, RoleRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        from apps.reminders.services import session_summary  # local import: reminders depends on timetables
         session = self.get_session()
         ctx.update(session=session, changes=session.changes.select_related("changed_by"),
-                   cancel_form=forms.CancelForm(), can_modify=not session.is_cancelled)
+                   cancel_form=forms.CancelForm(), can_modify=not session.is_cancelled,
+                   reminder_summary=session_summary(session))
         return ctx
 
 

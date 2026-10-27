@@ -45,6 +45,9 @@ class AdminDashboardView(RoleRequiredMixin, TemplateView):
         ctx["total_users"] = sum(ctx["chart_values"])
         ctx["active_users"] = User.objects.filter(is_active=True).count()
         ctx["recent_audit"] = AuditLog.objects.select_related("actor")[:8]
+        from apps.reminders.models import Notification, NotificationKind, NotificationStatus
+        ctx["pending_reminders"] = Notification.objects.filter(
+            kind=NotificationKind.REMINDER, status=NotificationStatus.PENDING).count()
         from apps.academics.models import Course, CourseOffering, Programme, StudentProfile
         from apps.timetables.models import LectureSession, SessionStatus
         ctx["academic_counts"] = [
@@ -84,6 +87,9 @@ class StudentDashboardView(RoleRequiredMixin, TemplateView):
         ctx["missing_profile"] = profile is None
         ctx["course_count"] = profile.enrolments.filter(status=EnrolmentStatus.ENROLLED).count() if profile else 0
         ctx["upcoming"] = sessions_for_student(self.request.user).filter(end_at__gte=timezone.now()).order_by("start_at")[:6]
+        from apps.reminders.services import inbox_for, unread_count
+        ctx["unread_count"] = unread_count(self.request.user)
+        ctx["recent_notifications"] = inbox_for(self.request.user)[:4]
         return ctx
 
 

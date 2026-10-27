@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.academics",
     "apps.timetables",
+    "apps.reminders",
 ]
 
 MIDDLEWARE = [
@@ -49,6 +50,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "apps.reminders.context_processors.notifications",
             ],
         },
     },
@@ -101,6 +103,9 @@ EMAIL_BACKEND = os.environ.get(
     "MIU_LRSES_EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend"
 )
 DEFAULT_FROM_EMAIL = "MIU-LRSES <no-reply@localhost>"
+
+# Reminder delivery channels. Only "in_app" is implemented (see apps/reminders/channels.py).
+REMINDER_CHANNELS = ["in_app"]
 
 if not DEBUG:  # pragma: no cover - production hardening switches
     SECURE_SSL_REDIRECT = True

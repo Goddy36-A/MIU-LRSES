@@ -11,5 +11,6 @@ urlpatterns = [
     path("django-admin/", admin.site.urls),
     path("academics/", include("apps.academics.urls")),
     path("timetables/", include("apps.timetables.urls")),
+    path("reminders/", include("apps.reminders.urls")),
     path("", include("apps.accounts.urls")),
 ]

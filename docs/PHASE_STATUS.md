@@ -4,7 +4,7 @@
 |---|---|---|
 | 1 | Foundation: project, custom user, roles, auth, base UI, admin, tests | Done |
 | 2 | Academic management: programmes, courses, years, semesters, profiles, offerings, enrolment, venues, lectures, conflict checks | Done |
-| 3 | Reminders | Not started |
+| 3 | Reminders: intervals, scheduling, in-app notifications, `process_reminders`, reschedule/cancel handling | Done (Windows Task Scheduler steps unverified) |
 | 4 | Attendance and performance | Not started |
 | 5 | Research study | Not started |
 | 6 | Questionnaires | Not started |
@@ -33,3 +33,16 @@
   Reschedule and is recorded.
 - A student conflict is reported when a student enrolled in the lecture's offering is already enrolled in another
   offering with an overlapping scheduled lecture. Enrolments added later are not re-checked against old lectures.
+
+## Phase 3 design decisions
+- App `reminders`. Hooks into Phase 2 via the existing `lecture_changed` signal; the scheduling services are unchanged.
+- Reminders (the study intervention) and schedule-change notices (normal academic communication) are separate
+  notification kinds. Only reminders pass through recipient filters, which is where Phase 5 will exclude the control group.
+- Default intervals 24h / 1h / 15m are data (seeded by a migration) and editable by administrators; they are never hard-coded in logic.
+- Reminders are materialised in the database when a lecture is scheduled and re-synchronised on every processor run.
+  Moments already in the past are not scheduled. Reminders that fall due after a lecture starts expire.
+- Ambiguities resolved with defaults (please confirm): only students receive reminders; late-processed reminders are
+  still delivered while the lecture has not started; "Delivered" means available in the in-app inbox.
+- Enrolment changes are applied by the next processor run, not instantly.
+- Known limitation: the sync step loads every upcoming lecture on each run. This is fine for a single-campus pilot;
+  it should be optimised if the data volume grows substantially.

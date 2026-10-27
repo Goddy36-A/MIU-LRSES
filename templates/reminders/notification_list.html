@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-start mb-3 gap-2">
+  <div><h1 class="page-title">Notifications</h1>
+    <p class="page-sub">Lecture reminders and schedule changes. These appear here inside MIU-LRSES; nothing is sent by email, SMS or any other app.</p></div>
+  <div class="d-flex gap-2">
+    <div class="btn-group" role="group" aria-label="Filter notifications">
+      <a class="btn btn-sm {% if show == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?show=all">All</a>
+      <a class="btn btn-sm {% if show == 'unread' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?show=unread">Unread ({{ unread }})</a>
+    </div>
+    {% if unread %}<form method="post" action="{% url 'reminders:mark_all_read' %}">{% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <button class="btn btn-sm btn-outline-primary" type="submit">Mark all as read</button></form>{% endif %}
+  </div>
+</div>
+<div class="panel"><ul class="list-group list-group-flush">
+{% for n in notifications %}
+  <li class="list-group-item py-3 {% if not n.is_read %}border-start border-4 border-warning bg-white{% endif %}">
+    <div class="d-flex justify-content-between align-items-start gap-3">
+      <div>
+        <div class="fw-semibold">{{ n.title }}
+          {% if not n.is_read %}<span class="badge text-bg-warning ms-1">Unread</span>{% endif %}
+          {% if n.kind == 'schedule_change' %}<span class="badge text-bg-info ms-1">Schedule change</span>{% endif %}
+          {% if n.superseded %}<span class="badge text-bg-secondary ms-1">Old time: lecture was rescheduled</span>
+          {% elif n.kind == 'reminder' and n.session.is_cancelled %}<span class="badge text-bg-danger ms-1">Lecture cancelled</span>{% endif %}
+        </div>
+        <div class="text-secondary small mb-1">{{ n.delivered_at|date:"D d M Y, H:i" }}</div>
+        <div style="white-space: pre-line">{{ n.message }}</div>
+      </div>
+      {% if not n.is_read %}
+      <form method="post" action="{% url 'reminders:mark_read' n.pk %}" class="flex-shrink-0">{% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button class="btn btn-sm btn-outline-primary" type="submit">Mark as read</button></form>
+      {% endif %}
+    </div>
+  </li>
+{% empty %}
+  <li class="list-group-item text-secondary text-center py-5">
+    {% if show == 'unread' %}You have no unread notifications.{% else %}No notifications yet. Reminders appear here shortly before your lectures.{% endif %}</li>
+{% endfor %}
+</ul></div>
+{% include "partials/_pagination.html" %}
+{% endblock %}

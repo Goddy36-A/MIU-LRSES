@@ -26,6 +26,9 @@
       <button class="btn btn-outline-danger" type="submit">Cancel lecture</button>
     </form></div></div></div>
   {% endif %}
+  <div class="col-12"><div class="panel"><div class="panel-head">Reminders for this lecture</div><div class="panel-body">
+    {% for label, n in reminder_summary.items %}<span class="me-4"><strong>{{ n }}</strong> {{ label|lower }}</span>{% endfor %}
+    <div class="small text-secondary mt-2">Counts of scheduled reminders across enrolled students. Delivered means shown in the student's in-app notifications.</div></div></div></div>
   <div class="col-12"><div class="panel"><div class="panel-head">Change history</div>
     <div class="table-responsive"><table class="table mb-0"><thead><tr><th>When</th><th>Change</th><th>Details</th><th>By</th></tr></thead><tbody>
     {% for c in changes %}<tr><td class="text-nowrap">{{ c.changed_at|date:"d M Y H:i" }}</td><td>{{ c.get_change_type_display }}</td>
