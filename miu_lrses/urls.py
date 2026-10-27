@@ -12,5 +12,7 @@ urlpatterns = [
     path("academics/", include("apps.academics.urls")),
     path("timetables/", include("apps.timetables.urls")),
     path("reminders/", include("apps.reminders.urls")),
+    path("attendance/", include("apps.attendance.urls")),
+    path("performance/", include("apps.performance.urls")),
     path("", include("apps.accounts.urls")),
 ]

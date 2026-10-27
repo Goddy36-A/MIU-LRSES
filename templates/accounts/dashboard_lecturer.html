@@ -4,10 +4,13 @@
 <h1 class="page-title">Welcome, {{ request.user.display_name }}</h1>
 <p class="page-sub mb-4">Lecturer dashboard</p>
 {% if missing_profile %}<div class="pending-note mb-4" role="note">Your lecturer profile has not been set up yet. Please ask the system administrator.</div>{% endif %}
-<div class="row g-3 mb-4"><div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ offering_count }}</div><div class="stat-label">Assigned course offerings</div></div></div></div>
+<div class="row g-3 mb-4"><div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ offering_count }}</div><div class="stat-label">Assigned course offerings</div></div></div>
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ awaiting_attendance }}</div><div class="stat-label">Held lectures with no attendance</div></div></div>
+  <div class="col-6 col-lg-3"><a class="text-decoration-none" href="{% url 'performance:assignment_list' %}"><div class="panel stat"><div class="stat-value">{{ assignment_count }}</div><div class="stat-label">Assignments</div></div></a></div></div>
 {% url 'timetables:session_list' as all_url %}
 {% include "partials/_upcoming.html" with all_url=all_url %}
 <div class="d-flex gap-2 mt-3"><a class="btn btn-primary" href="{% url 'timetables:session_add' %}">Schedule a lecture</a>
-<a class="btn btn-outline-primary" href="{% url 'academics:my_courses' %}">My courses</a></div>
-<div class="pending-note mt-4" role="note">Not built yet: attendance (Phase 4), assignments and marks (Phase 4), course reports (Phase 4).</div>
+<a class="btn btn-outline-primary" href="{% url 'academics:my_courses' %}">My courses</a>
+<a class="btn btn-outline-primary" href="{% url 'performance:assignment_add' %}">New assignment</a></div>
+
 {% endblock %}

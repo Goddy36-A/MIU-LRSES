@@ -1,0 +1,6 @@
+<div class="small text-secondary mt-2">
+  Rate = attended &divide; (present + late + absent{% if rules.excused_policy != 'exclude' %} + excused{% endif %}) &times; 100.
+  Late {% if rules.late_counts_as_attended %}counts as attended{% else %}does not count as attended{% endif %};
+  excused absences are {% if rules.excused_policy == 'exclude' %}excluded from the rate{% elif rules.excused_policy == 'attended' %}counted as attended{% else %}counted as absent{% endif %}.
+  Lectures with no attendance record are shown as "Not recorded" and are never counted as absences. "n/a" means no recorded lectures yet.
+</div>

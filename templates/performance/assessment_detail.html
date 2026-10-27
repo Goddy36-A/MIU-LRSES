@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ assessment.title }}{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+  <div><h1 class="page-title">{{ assessment.title }}</h1>
+  <p class="page-sub">{{ assessment.offering.course.code }} · {{ assessment.get_kind_display }}{% if assessment.assessment_date %} · {{ assessment.assessment_date|date:"d M Y" }}{% endif %} · Max marks {{ assessment.max_marks }}{% if assessment.weight_percent %} · Weight {{ assessment.weight_percent }}%{% endif %}</p></div>
+  <div class="d-flex gap-2 align-items-start">
+    <a class="btn btn-outline-primary" href="{% url 'performance:assessment_edit' assessment.pk %}">Edit</a>
+    <a class="btn btn-primary" href="{% url 'performance:assessment_results' assessment.pk %}">Record results</a></div>
+</div>
+<div class="panel"><div class="panel-head">Results</div><div class="table-responsive"><table class="table mb-0">
+  <thead><tr><th>Student</th><th>Status</th><th>Marks</th><th>%</th></tr></thead><tbody>
+  {% for r in rows %}<tr><td>{{ r.student.registration_number }} {{ r.student.user.display_name }}</td>
+    <td>{% if r.result %}{{ r.result.get_status_display }}{% else %}<span class="text-secondary">No record</span>{% endif %}</td>
+    <td>{{ r.result.marks|default_if_none:"-" }}</td><td>{% if r.percentage is None %}-{% else %}{{ r.percentage }}%{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="4" class="text-secondary text-center py-3">No students are enrolled in this course.</td></tr>{% endfor %}
+  </tbody></table></div></div>
+<a class="btn btn-link mt-2" href="{% url 'performance:assessment_list' %}">Back to assessments</a>
+{% endblock %}

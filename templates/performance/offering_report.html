@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Performance report{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+  <div><h1 class="page-title">Performance report: {{ offering.course.code }}</h1><p class="page-sub">{{ offering.course.title }} · {{ offering.semester }}</p></div>
+  <a class="btn btn-outline-primary align-self-start" href="{% url 'academics:offering_detail' offering.pk %}">Back to course</a>
+</div>
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ enrolled }}</div><div class="stat-label">Enrolled students</div></div></div>
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ with_marks }}</div><div class="stat-label">With marks</div></div></div>
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{% if stats %}{{ stats.mean }}%{% else %}n/a{% endif %}</div><div class="stat-label">Class mean</div></div></div>
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{% if stats %}{{ stats.median }}%{% else %}n/a{% endif %}</div><div class="stat-label">Class median</div></div></div>
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{% if punctuality.rate is None %}n/a{% else %}{{ punctuality.rate }}%{% endif %}</div><div class="stat-label">Assignment punctuality</div></div></div>
+</div>
+{% if stats %}
+<div class="panel mb-3"><div class="panel-head">Distribution of course percentages</div><div class="panel-body"><div style="position:relative;height:260px"><canvas id="distChart" role="img" aria-label="Bar chart of how many students fall in each percentage band"></canvas></div></div></div>
+{% endif %}
+<div class="panel"><div class="panel-head">Students</div><div class="table-responsive"><table class="table mb-0">
+  <thead><tr><th>Student</th><th>Marked items</th><th>Course %</th><th>Method</th><th>Punctuality</th></tr></thead><tbody>
+  {% for r in rows %}<tr><td>{{ r.student.registration_number }} {{ r.student.user.display_name }}</td><td>{{ r.performance.marked_items }}</td>
+    <td class="fw-semibold">{% if r.performance.percentage is None %}<span class="text-secondary">n/a</span>{% else %}{{ r.performance.percentage }}%{% endif %}</td>
+    <td>{{ r.performance.method }}{% if r.performance.weight_covered %} ({{ r.performance.weight_covered|floatformat:"-2" }}% of weight marked){% endif %}</td>
+    <td>{% if r.punctuality.rate is None %}<span class="text-secondary">n/a</span>{% else %}{{ r.punctuality.rate }}% ({{ r.punctuality.on_time }}/{{ r.punctuality.eligible }}){% endif %}</td></tr>
+  {% empty %}<tr><td colspan="5" class="text-secondary text-center py-3">No students enrolled.</td></tr>{% endfor %}
+  </tbody></table></div></div>
+<p class="small text-secondary mt-2">Course % is a weighted mean when marked items have weights, otherwise a simple average. Missing, "did not sit" and exempt items are not treated as zero. No letter grades are assumed. Only assignments marked "records complete" count towards punctuality; {{ punctuality.assignments_awaiting_records }} assignment{{ punctuality.assignments_awaiting_records|pluralize }} awaiting complete records.</p>
+{{ band_labels|json_script:"band-labels" }}{{ distribution|json_script:"band-values" }}
+{% endblock %}
+{% block scripts %}{% load static %}
+{% if stats %}
+<script src="{% static 'vendor/chartjs/chart.umd.js' %}"></script>
+<script>
+  new Chart(document.getElementById('distChart'), {type: 'bar',
+    data: {labels: JSON.parse(document.getElementById('band-labels').textContent),
+           datasets: [{label: 'Students', data: JSON.parse(document.getElementById('band-values').textContent), backgroundColor: '#0b6b66'}]},
+    options: {maintainAspectRatio: false, scales: {y: {beginAtZero: true, ticks: {precision: 0}}}, plugins: {legend: {display: false}}}});
+</script>
+{% endif %}
+{% endblock %}

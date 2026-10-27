@@ -1,4 +1,4 @@
-# Database models (through Phase 2)
+# Database models (through Phase 4)
 
 All tables are created by Django migrations. Foreign keys to history/records use PROTECT where deleting would lose data.
 
@@ -32,4 +32,16 @@ All tables are created by Django migrations. Foreign keys to history/records use
 - **ReminderRun**: one execution of the processor. started/finished, trigger (command/admin), triggered_by, status,
   sync_created/updated/cancelled, due_found, delivered, expired, cancelled, failed, skipped, notes.
 
-Tables for attendance, assignments, research and questionnaires are added in later phases.
+## attendance
+- **AttendanceRules**: single row (pk 1). late_counts_as_attended (default yes), excused_policy (exclude / attended / absent; default exclude), updated_by, updated_at.
+- **AttendanceRecord**: session -> LectureSession, student -> StudentProfile, status (present/absent/late/excused), recorded_by, recorded_at, updated_by, updated_at.
+  Unique (session, student): there can never be two records for the same student and lecture. No record = "not recorded" (never an absence).
+- **AttendanceChange**: append-only audit trail. record, old_status (blank on first recording), new_status, reason, changed_by, changed_at. Written for every recording and every correction.
+
+## performance
+- **Assignment**: offering, title, instructions, deadline, max_marks, weight_percent (optional), records_complete, created_by, created_at.
+- **Submission**: assignment, student, status (submitted / not_submitted / exempt), submitted_at, extended_deadline (individual extension), marks (optional, submitted work only), recorded_by, updated_at. Unique (assignment, student).
+- **Assessment**: offering, title, kind (test/exam/practical/other), assessment_date, max_marks, weight_percent (optional), created_by, created_at.
+- **AssessmentResult**: assessment, student, status (marked / absent "did not sit" / exempt), marks (required only when marked), recorded_by, updated_at. Unique (assessment, student).
+
+Tables for research and questionnaires are added in later phases.

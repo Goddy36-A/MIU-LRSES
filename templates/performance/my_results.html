@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}My results{% endblock %}
+{% block content %}
+<h1 class="page-title mb-3">My results</h1>
+{% if missing_profile %}<div class="pending-note mb-3">Your student profile has not been set up yet. Please ask the system administrator.</div>{% endif %}
+{% if punctuality %}<div class="row g-3 mb-3"><div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{% if punctuality.rate is None %}n/a{% else %}{{ punctuality.rate }}%{% endif %}</div><div class="stat-label">Assignments handed in on time</div></div></div></div>{% endif %}
+{% for offering, perf in courses %}
+<div class="panel mb-3"><div class="panel-head d-flex justify-content-between"><span>{{ offering.course.code }} - {{ offering.course.title }}</span>
+  <span>{% if perf.percentage is None %}<span class="text-secondary">No marks yet</span>{% else %}<strong>{{ perf.percentage }}%</strong> <span class="small text-secondary">({{ perf.method }})</span>{% endif %}</span></div>
+  <div class="table-responsive"><table class="table mb-0"><thead><tr><th>Item</th><th>Type</th><th>Marks</th><th>%</th><th>Weight</th></tr></thead><tbody>
+  {% for i in perf.items %}<tr><td>{{ i.title }}</td><td>{{ i.kind }}</td><td>{{ i.marks }} / {{ i.max }}</td><td>{{ i.percentage }}%</td><td>{% if i.weight %}{{ i.weight|floatformat:"-2" }}%{% else %}-{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="5" class="text-secondary text-center py-3">No marks recorded yet.</td></tr>{% endfor %}
+  </tbody></table></div></div>
+{% empty %}<div class="panel panel-body text-secondary">You are not enrolled in any course.</div>{% endfor %}
+<p class="small text-secondary">Only results your lecturers have recorded are shown. Missing items are not counted as zero. Your results are visible to you, your lecturers and administrators only.</p>
+{% endblock %}

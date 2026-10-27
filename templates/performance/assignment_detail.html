@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ assignment.title }}{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+  <div><h1 class="page-title">{{ assignment.title }}</h1>
+  <p class="page-sub">{{ assignment.offering.course.code }} - {{ assignment.offering.course.title }} · Deadline {{ assignment.deadline|date:"D d M Y H:i" }} (Africa/Kampala) · Max marks {{ assignment.max_marks }}{% if assignment.weight_percent %} · Weight {{ assignment.weight_percent }}%{% endif %}</p></div>
+  <div class="d-flex gap-2 align-items-start">
+    <a class="btn btn-outline-primary" href="{% url 'performance:assignment_edit' assignment.pk %}">Edit</a>
+    <a class="btn btn-primary" href="{% url 'performance:assignment_records' assignment.pk %}">Record submissions and marks</a></div>
+</div>
+{% if assignment.instructions %}<div class="panel panel-body mb-3">{{ assignment.instructions|linebreaksbr }}</div>{% endif %}
+{% if not assignment.records_complete %}<div class="pending-note mb-3" role="note">Submission records are not marked complete, so this assignment is not yet counted in punctuality rates. Record every student's submission, then tick "Submission records are complete".</div>{% endif %}
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{% if assignment.records_complete %}{% if summary.rate is None %}n/a{% else %}{{ summary.rate }}%{% endif %}{% else %}-{% endif %}</div><div class="stat-label">Punctuality rate</div></div></div>
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ summary.on_time }}</div><div class="stat-label">On time</div></div></div>
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ summary.late }}</div><div class="stat-label">Late</div></div></div>
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ summary.missing }}</div><div class="stat-label">Not submitted</div></div></div>
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ summary.exempt }}</div><div class="stat-label">Exempt</div></div></div>
+</div>
+<div class="panel"><div class="panel-head">Students</div><div class="table-responsive"><table class="table mb-0 align-middle">
+  <thead><tr><th>Student</th><th>Status</th><th>Submitted</th><th>Extension</th><th>Marks</th><th>%</th></tr></thead><tbody>
+  {% for r in rows %}<tr><td>{{ r.student.registration_number }} {{ r.student.user.display_name }}</td>
+    <td>{{ r.label }}{% if not r.submission %} <span class="small text-secondary">(no record)</span>{% endif %}</td>
+    <td class="text-nowrap">{{ r.submission.submitted_at|date:"d M H:i"|default:"-" }}</td><td class="text-nowrap">{{ r.submission.extended_deadline|date:"d M H:i"|default:"-" }}</td>
+    <td>{{ r.submission.marks|default_if_none:"-" }}</td><td>{% if r.percentage is None %}-{% else %}{{ r.percentage }}%{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="6" class="text-secondary text-center py-3">No students are enrolled in this course.</td></tr>{% endfor %}
+  </tbody></table></div></div>
+<p class="small text-secondary mt-2">"Not submitted" means the effective deadline has passed with no submission. It counts against punctuality only once the records are marked complete. Exempt students and students whose (extended) deadline has not yet passed are excluded.</p>
+<a class="btn btn-link mt-2" href="{% url 'performance:assignment_list' %}">Back to assignments</a>
+{% endblock %}

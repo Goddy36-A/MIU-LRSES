@@ -5,7 +5,7 @@
 | 1 | Foundation: project, custom user, roles, auth, base UI, admin, tests | Done |
 | 2 | Academic management: programmes, courses, years, semesters, profiles, offerings, enrolment, venues, lectures, conflict checks | Done |
 | 3 | Reminders: intervals, scheduling, in-app notifications, `process_reminders`, reschedule/cancel handling | Done (Windows Task Scheduler steps unverified) |
-| 4 | Attendance and performance | Not started |
+| 4 | Attendance and performance: attendance with audit trail, assignments, submissions, assessments, marks, reports | Done |
 | 5 | Research study | Not started |
 | 6 | Questionnaires | Not started |
 | 7 | Analytics and exports | Not started |
@@ -46,3 +46,13 @@
 - Enrolment changes are applied by the next processor run, not instantly.
 - Known limitation: the sync step loads every upcoming lecture on each run. This is fine for a single-campus pilot;
   it should be optimised if the data volume grows substantially.
+
+## Phase 4 design decisions
+- Apps: `attendance` (rules, records, change history) and `performance` (assignments, submissions, assessments, results). Calculation
+  logic lives in each app's `services.py`; views only call services. Ownership rules are shared in `apps/core/scope.py`.
+- Exact calculation rules, missing-data handling and assumptions are in [ATTENDANCE_PERFORMANCE.md](ATTENDANCE_PERFORMANCE.md).
+- Missing attendance is never an absence; missing marks are never zero; assignments count toward punctuality only once their records are marked complete.
+- Attendance rules (late handling, excused policy) are administrator-configurable data, with documented defaults.
+- Researchers have no access to attendance or marks yet; research-specific access arrives with consent rules in Phase 5.
+- Ambiguities resolved with defaults (please confirm): late counts as attended; excused absences are excluded from the rate;
+  attendance can be recorded once a lecture has started; there are no letter grades.

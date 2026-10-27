@@ -26,6 +26,13 @@
       <button class="btn btn-outline-danger" type="submit">Cancel lecture</button>
     </form></div></div></div>
   {% endif %}
+  {% if not session.is_cancelled %}
+  <div class="col-12"><div class="panel"><div class="panel-head d-flex justify-content-between align-items-center"><span>Attendance</span>
+    <a class="btn btn-sm btn-primary" href="{% url 'attendance:mark' session.pk %}">Take or correct attendance</a></div><div class="panel-body">
+    <span class="me-4"><strong>{{ attendance_counts.present }}</strong> present</span><span class="me-4"><strong>{{ attendance_counts.late }}</strong> late</span>
+    <span class="me-4"><strong>{{ attendance_counts.absent }}</strong> absent</span><span class="me-4"><strong>{{ attendance_counts.excused }}</strong> excused</span>
+    <span class="me-4"><strong>{{ attendance_counts.not_recorded }}</strong> not recorded</span></div></div></div>
+  {% endif %}
   <div class="col-12"><div class="panel"><div class="panel-head">Reminders for this lecture</div><div class="panel-body">
     {% for label, n in reminder_summary.items %}<span class="me-4"><strong>{{ n }}</strong> {{ label|lower }}</span>{% endfor %}
     <div class="small text-secondary mt-2">Counts of scheduled reminders across enrolled students. Delivered means shown in the student's in-app notifications.</div></div></div></div>

@@ -104,7 +104,8 @@ class SessionDetail(SessionObjectMixin, RoleRequiredMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         from apps.reminders.services import session_summary  # local import: reminders depends on timetables
         session = self.get_session()
-        ctx.update(session=session, changes=session.changes.select_related("changed_by"),
+        from apps.attendance.services import session_counts  # local import: attendance depends on timetables
+        ctx.update(session=session, attendance_counts=session_counts(session), changes=session.changes.select_related("changed_by"),
                    cancel_form=forms.CancelForm(), can_modify=not session.is_cancelled,
                    reminder_summary=session_summary(session))
         return ctx

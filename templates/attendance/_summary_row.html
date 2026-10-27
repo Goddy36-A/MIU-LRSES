@@ -1,0 +1,2 @@
+<td>{{ s.held }}</td><td>{{ s.present }}</td><td>{{ s.late }}</td><td>{{ s.absent }}</td><td>{{ s.excused }}</td><td>{{ s.unrecorded }}</td>
+<td class="fw-semibold">{% if s.rate is None %}<span class="text-secondary">n/a</span>{% else %}{{ s.rate }}%{% endif %}</td>

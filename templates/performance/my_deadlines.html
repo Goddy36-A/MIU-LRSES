@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Assignment deadlines{% endblock %}
+{% block content %}
+<h1 class="page-title mb-3">Assignment deadlines</h1>
+{% if missing_profile %}<div class="pending-note mb-3">Your student profile has not been set up yet. Please ask the system administrator.</div>{% endif %}
+<div class="panel mb-3"><div class="panel-head">Upcoming</div><div class="table-responsive"><table class="table mb-0">
+  <thead><tr><th>Assignment</th><th>Course</th><th>Deadline</th><th>Status</th></tr></thead><tbody>
+  {% for r in upcoming %}<tr><td>{{ r.assignment.title }}</td><td>{{ r.assignment.offering.course.code }}</td><td class="text-nowrap">{{ r.deadline|date:"D d M Y H:i" }}{% if r.extended %} <span class="badge text-bg-info">Extended</span>{% endif %}</td><td>{{ r.status }}</td></tr>
+  {% empty %}<tr><td colspan="4" class="text-secondary text-center py-3">No upcoming deadlines.</td></tr>{% endfor %}
+  </tbody></table></div></div>
+<div class="panel"><div class="panel-head">Past</div><div class="table-responsive"><table class="table mb-0">
+  <thead><tr><th>Assignment</th><th>Course</th><th>Deadline</th><th>Status</th></tr></thead><tbody>
+  {% for r in past %}<tr><td>{{ r.assignment.title }}</td><td>{{ r.assignment.offering.course.code }}</td><td class="text-nowrap">{{ r.deadline|date:"D d M Y H:i" }}{% if r.extended %} <span class="badge text-bg-info">Extended</span>{% endif %}</td><td>{{ r.status }}</td></tr>
+  {% empty %}<tr><td colspan="4" class="text-secondary text-center py-3">No past deadlines.</td></tr>{% endfor %}
+  </tbody></table></div></div>
+<p class="small text-secondary mt-2">"No submission recorded" means your lecturer has no submission on record for you. Contact them if you believe this is wrong.</p>
+{% endblock %}

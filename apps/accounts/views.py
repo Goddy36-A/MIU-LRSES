@@ -72,6 +72,11 @@ class LecturerDashboardView(RoleRequiredMixin, TemplateView):
         ctx["offering_count"] = profile.offerings.count() if profile else 0
         ctx["upcoming"] = sessions_for_lecturer(profile).filter(
             status=SessionStatus.SCHEDULED, end_at__gte=timezone.now()).order_by("start_at")[:6]
+        from apps.attendance.services import sessions_awaiting_attendance
+        from apps.performance.models import Assignment
+        offering_ids = list(profile.offerings.values_list("pk", flat=True)) if profile else []
+        ctx["awaiting_attendance"] = sessions_awaiting_attendance(offering_ids).count()
+        ctx["assignment_count"] = Assignment.objects.filter(offering_id__in=offering_ids).count()
         return ctx
 
 
@@ -90,6 +95,12 @@ class StudentDashboardView(RoleRequiredMixin, TemplateView):
         from apps.reminders.services import inbox_for, unread_count
         ctx["unread_count"] = unread_count(self.request.user)
         ctx["recent_notifications"] = inbox_for(self.request.user)[:4]
+        if profile:
+            from apps.attendance.services import student_summary
+            from apps.performance.models import Assignment
+            ctx["attendance_rate"] = student_summary(profile).rate
+            offering_ids = profile.enrolments.filter(status=EnrolmentStatus.ENROLLED).values_list("offering_id", flat=True)
+            ctx["open_assignments"] = Assignment.objects.filter(offering_id__in=list(offering_ids), deadline__gt=timezone.now()).count()
         return ctx
 
 

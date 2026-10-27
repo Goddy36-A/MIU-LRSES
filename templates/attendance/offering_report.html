@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Attendance report{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+  <div><h1 class="page-title">Attendance report: {{ offering.course.code }}</h1><p class="page-sub">{{ offering.course.title }} · {{ offering.semester }}</p></div>
+  <a class="btn btn-outline-primary align-self-start" href="{% url 'academics:offering_detail' offering.pk %}">Back to course</a>
+</div>
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{% if overall.rate is None %}n/a{% else %}{{ overall.rate }}%{% endif %}</div><div class="stat-label">Course attendance rate</div></div></div>
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ sessions|length }}</div><div class="stat-label">Lectures held</div></div></div>
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ students|length }}</div><div class="stat-label">Enrolled students</div></div></div>
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ overall.unrecorded }}</div><div class="stat-label">Student-lectures not recorded</div></div></div>
+</div>
+{% if chart_labels %}
+<div class="panel mb-3"><div class="panel-head">Attendance rate by student (%)</div><div class="panel-body"><div style="position:relative;height:280px"><canvas id="rateChart" role="img" aria-label="Bar chart of attendance rate for each student"></canvas></div></div></div>
+{% endif %}
+<div class="panel mb-3"><div class="panel-head">Students</div><div class="table-responsive"><table class="table mb-0">
+  <thead><tr><th>Student</th><th>Held</th><th>Present</th><th>Late</th><th>Absent</th><th>Excused</th><th>Not recorded</th><th>Rate</th></tr></thead><tbody>
+  {% for r in students %}{% with s=r.summary %}<tr><td><a href="{% url 'attendance:student_report' r.student.pk %}">{{ r.student.registration_number }}</a> {{ r.student.user.display_name }}</td>{% include "attendance/_summary_row.html" %}</tr>{% endwith %}
+  {% empty %}<tr><td colspan="8" class="text-secondary text-center py-3">No students enrolled.</td></tr>{% endfor %}
+  </tbody></table></div></div>
+<div class="panel"><div class="panel-head">Lectures held</div><div class="table-responsive"><table class="table mb-0">
+  <thead><tr><th>Lecture</th><th>Present</th><th>Late</th><th>Absent</th><th>Excused</th><th>Not recorded</th><th>Rate</th></tr></thead><tbody>
+  {% for r in sessions %}{% with s=r.summary %}<tr><td><a href="{% url 'attendance:mark' r.session.pk %}">{{ r.session.start_at|date:"D d M Y H:i" }}</a></td>
+    <td>{{ s.present }}</td><td>{{ s.late }}</td><td>{{ s.absent }}</td><td>{{ s.excused }}</td><td>{{ s.unrecorded }}</td><td class="fw-semibold">{% if s.rate is None %}<span class="text-secondary">n/a</span>{% else %}{{ s.rate }}%{% endif %}</td></tr>{% endwith %}
+  {% empty %}<tr><td colspan="7" class="text-secondary text-center py-3">No lectures have been held yet.</td></tr>{% endfor %}
+  </tbody></table></div></div>
+{% include "attendance/_rules_note.html" %}
+{{ chart_labels|json_script:"chart-labels" }}{{ chart_values|json_script:"chart-values" }}
+{% endblock %}
+{% block scripts %}{% load static %}
+{% if chart_labels %}
+<script src="{% static 'vendor/chartjs/chart.umd.js' %}"></script>
+<script>
+  new Chart(document.getElementById('rateChart'), {type: 'bar',
+    data: {labels: JSON.parse(document.getElementById('chart-labels').textContent),
+           datasets: [{label: 'Attendance rate (%)', data: JSON.parse(document.getElementById('chart-values').textContent), backgroundColor: '#0b6b66'}]},
+    options: {maintainAspectRatio: false, scales: {y: {min: 0, max: 100}}, plugins: {legend: {display: false}}}});
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Student attendance{% endblock %}
+{% block content %}
+<h1 class="page-title">Attendance: {{ student.user.display_name }}</h1>
+<p class="page-sub mb-3">{{ student.registration_number }} · {{ student.programme.code }} · Year {{ student.year_of_study }}</p>
+<div class="panel mb-3"><div class="table-responsive"><table class="table mb-0">
+  <thead><tr><th>Course</th><th>Held</th><th>Present</th><th>Late</th><th>Absent</th><th>Excused</th><th>Not recorded</th><th>Rate</th></tr></thead><tbody>
+  {% for offering, s in by_offering %}<tr><td>{{ offering.course.code }} - {{ offering.course.title }}</td>{% include "attendance/_summary_row.html" %}</tr>{% endfor %}
+  <tr class="table-light fw-semibold"><td>All shown courses</td>{% with s=overall %}{% include "attendance/_summary_row.html" %}{% endwith %}</tr>
+  </tbody></table></div></div>
+{% include "attendance/_rules_note.html" %}
+<a class="btn btn-link mt-2" href="javascript:history.back()">Back</a>
+{% endblock %}

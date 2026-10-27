@@ -6,6 +6,8 @@
   <p class="page-sub">{{ offering.semester }} · {{ offering.course.programme.code }} · Year {{ offering.course.year_of_study }}{% if not offering.is_active %} · <strong>Inactive</strong>{% endif %}</p></div>
   <div class="d-flex gap-2 align-items-start">
     {% if is_admin %}<a class="btn btn-outline-primary" href="{% url 'academics:offering_edit' offering.pk %}">Edit offering</a>{% endif %}
+    <a class="btn btn-outline-primary" href="{% url 'attendance:offering_report' offering.pk %}">Attendance report</a>
+    <a class="btn btn-outline-primary" href="{% url 'performance:offering_report' offering.pk %}">Performance report</a>
     <a class="btn btn-primary" href="{% url 'timetables:session_add' %}">Schedule lecture</a>
   </div>
 </div>
@@ -20,7 +22,7 @@
     </tbody></table></div></div></div>
   <div class="col-12"><div class="panel"><div class="panel-head">Enrolled students ({{ enrolments|length }})</div>
     <div class="table-responsive"><table class="table mb-0"><thead><tr><th>Reg. number</th><th>Name</th><th>Programme</th><th>Status</th></tr></thead><tbody>
-    {% for e in enrolments %}<tr><td>{{ e.student.registration_number }}</td><td>{{ e.student.user.display_name }}</td><td>{{ e.student.programme.code }}</td><td>{{ e.get_status_display }}</td></tr>
+    {% for e in enrolments %}<tr><td><a href="{% url 'attendance:student_report' e.student.pk %}">{{ e.student.registration_number }}</a></td><td>{{ e.student.user.display_name }}</td><td>{{ e.student.programme.code }}</td><td>{{ e.get_status_display }}</td></tr>
     {% empty %}<tr><td colspan="4" class="text-secondary text-center py-3">No students enrolled.</td></tr>{% endfor %}
     </tbody></table></div></div></div>
   {% if bulk_form %}

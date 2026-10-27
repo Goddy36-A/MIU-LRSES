@@ -4,8 +4,8 @@ Django web application supporting the study *"Evaluating the Impact of Lecture R
 Engagement and Academic Performance: A Case Study of Metropolitan International University, Biharwe Division,
 Mbarara City."*
 
-**Status: Phase 2 of 8 (academic management) complete.** Reminders, attendance, assignments, research,
-questionnaires and analytics are not built yet. See `docs/PHASE_STATUS.md`.
+**Status: Phase 4 of 8 (attendance and performance) complete.** Research, questionnaires and analytics are not
+built yet. See `docs/PHASE_STATUS.md`.
 
 No institutional ethical approval is claimed by this software. No research data or findings are included.
 
@@ -37,14 +37,14 @@ Then open http://127.0.0.1:8000/ and sign in with the account you created.
 ```
 python manage.py test
 ```
-Phases 1-3: 147 tests, all passing in the development sandbox run (Linux, Python 3.12). Not yet run on Windows.
+Phases 1-4: 220 tests, all passing in the development sandbox run (Linux, Python 3.12, Django 5.2.18). Not yet run on Windows.
 
 ## Roles and what each can do now
-| Role | Can do (Phases 1-3) |
+| Role | Can do (Phases 1-4) |
 |---|---|
-| System administrator | Everything below: user accounts, audit log, programmes, courses, academic years, semesters, course offerings, student and lecturer registration, enrolment (single and bulk), venues, all lectures (create, edit details, reschedule, cancel), reminder intervals and on/off switch, scheduled-reminder list, processing runs, Django Admin |
-| Lecturer | View assigned courses and rosters; view, schedule, reschedule and cancel lectures **only for offerings assigned to them** |
-| Student | View own courses and own timetable (upcoming/past, cancelled lectures marked); receive, read and mark as read their own in-app lecture reminders and schedule-change notices |
+| System administrator | Everything below: user accounts, audit log, programmes, courses, academic years, semesters, course offerings, student and lecturer registration, enrolment (single and bulk), venues, all lectures (create, edit details, reschedule, cancel), reminder intervals and on/off switch, scheduled-reminder list, processing runs, attendance on any lecture, attendance rules, assignments, assessments, marks, all course reports, Django Admin |
+| Lecturer | View assigned courses and rosters; view, schedule, reschedule and cancel lectures; record and correct attendance; create assignments and assessments; record submissions and marks; view attendance and performance reports - **all only for offerings assigned to them** |
+| Student | View own courses and own timetable (upcoming/past, cancelled lectures marked); receive, read and mark as read their own in-app lecture reminders and schedule-change notices; view own attendance, assignment deadlines and results |
 | Researcher | Placeholder dashboard only (research module arrives in Phase 5) |
 
 Roles are exclusive and enforced on the server (403 for the wrong role, 404 for another lecturer's records).
@@ -74,6 +74,13 @@ are in [docs/REMINDERS.md](docs/REMINDERS.md).
 ```
 python manage.py process_reminders
 ```
+
+## Attendance and performance (Phase 4)
+Lecturers record attendance from a lecture's page (corrections need a reason and are kept in a history), create
+assignments and assessments from the sidebar, and record submissions, extensions and marks on one page per item.
+Students see their own attendance, deadlines and results. Calculation rules (late and excused handling, missing
+records, extensions, exemptions, weighting) are defined in [docs/ATTENDANCE_PERFORMANCE.md](docs/ATTENDANCE_PERFORMANCE.md).
+Missing attendance is never counted as absence and missing marks are never counted as zero.
 
 ## Password reset
 Reset emails are printed to the console window running `runserver`; no email is actually sent unless you

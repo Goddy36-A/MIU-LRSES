@@ -5,6 +5,8 @@
 <p class="page-sub mb-4">Student dashboard</p>
 {% if missing_profile %}<div class="pending-note mb-4" role="note">Your student profile has not been set up yet. Please ask the system administrator.</div>{% endif %}
 <div class="row g-3 mb-4"><div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ course_count }}</div><div class="stat-label">Courses this semester</div></div></div>
+  <div class="col-6 col-lg-3"><a class="text-decoration-none" href="{% url 'attendance:my_attendance' %}"><div class="panel stat"><div class="stat-value">{% if attendance_rate is None %}n/a{% else %}{{ attendance_rate }}%{% endif %}</div><div class="stat-label">Attendance rate</div></div></a></div>
+  <div class="col-6 col-lg-3"><a class="text-decoration-none" href="{% url 'performance:my_deadlines' %}"><div class="panel stat"><div class="stat-value">{{ open_assignments|default:0 }}</div><div class="stat-label">Open assignments</div></div></a></div>
   <div class="col-6 col-lg-3"><a class="text-decoration-none" href="{% url 'reminders:notifications' %}?show=unread"><div class="panel stat"><div class="stat-value">{{ unread_count }}</div><div class="stat-label">Unread notifications</div></div></a></div></div>
 {% url 'timetables:my_timetable' as all_url %}
 {% include "partials/_upcoming.html" with all_url=all_url %}
@@ -13,5 +15,5 @@
   {% for n in recent_notifications %}<li class="list-group-item"><div class="fw-semibold">{{ n.title }}{% if not n.is_read %} <span class="badge text-bg-warning">Unread</span>{% endif %}</div>
     <div class="small text-secondary">{{ n.delivered_at|date:"D d M, H:i" }}</div></li>
   {% empty %}<li class="list-group-item text-secondary text-center py-4">No notifications yet.</li>{% endfor %}</ul></div>
-<div class="pending-note mt-4" role="note">Not built yet: attendance, deadlines and results (Phase 4), questionnaires (Phase 6).</div>
+<div class="pending-note mt-4" role="note">Not built yet: research questionnaires (Phase 6).</div>
 {% endblock %}

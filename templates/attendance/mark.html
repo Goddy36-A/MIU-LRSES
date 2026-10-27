@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Attendance{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+  <div><h1 class="page-title">Attendance: {{ session.offering.course.code }} - {{ session.offering.course.title }}</h1>
+  <p class="page-sub">{{ session.start_at|date:"l d F Y, H:i" }} to {{ session.end_at|date:"H:i" }} · {{ session.venue.name }}{% if session.is_cancelled %} <span class="badge text-bg-danger">Cancelled</span>{% endif %}</p></div>
+  <div><a class="btn btn-outline-primary" href="{% url 'timetables:session_detail' session.pk %}">Back to lecture</a></div>
+</div>
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ counts.roster }}</div><div class="stat-label">On register</div></div></div>
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ counts.present }}</div><div class="stat-label">Present</div></div></div>
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ counts.late }}</div><div class="stat-label">Late</div></div></div>
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ counts.absent }}</div><div class="stat-label">Absent</div></div></div>
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ counts.excused }}</div><div class="stat-label">Excused</div></div></div>
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ counts.not_recorded }}</div><div class="stat-label">Not recorded</div></div></div>
+</div>
+{% if closed_reason %}<div class="pending-note mb-3" role="note">{{ closed_reason }}</div>{% endif %}
+{% if form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+<form method="post" novalidate>{% csrf_token %}
+<div class="panel mb-3">
+  <div class="panel-head d-flex justify-content-between align-items-center"><span>Register</span>
+    {% if not closed_reason %}<button type="button" class="btn btn-sm btn-outline-primary" id="mark-all-present">Set unrecorded to Present</button>{% endif %}</div>
+  <div class="table-responsive"><table class="table mb-0 align-middle">
+    <thead><tr><th>Reg. number</th><th>Name</th><th style="width:14rem">Status</th></tr></thead><tbody>
+    {% for r in rows %}<tr><td>{{ r.student.registration_number }}</td><td>{{ r.student.user.display_name }}</td>
+      <td><label class="visually-hidden" for="{{ r.field.id_for_label }}">{{ r.field.label }}</label>{{ r.field }}{% for e in r.field.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</td></tr>
+    {% empty %}<tr><td colspan="3" class="text-secondary text-center py-4">No students are enrolled in this course.</td></tr>{% endfor %}
+    </tbody></table></div>
+</div>
+{% if not closed_reason and rows %}
+<div class="panel panel-body mb-3">
+  {% with f=form.reason %}<label class="form-label" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}<div class="form-text">{{ f.help_text }}</div>{% endwith %}
+</div>
+<button class="btn btn-primary" type="submit">Save attendance</button>
+{% endif %}
+</form>
+<div class="panel mt-4"><div class="panel-head">Recording and correction history</div>
+  <div class="table-responsive"><table class="table mb-0"><thead><tr><th>When</th><th>Student</th><th>Change</th><th>Reason</th><th>By</th></tr></thead><tbody>
+  {% for c in history %}<tr><td class="text-nowrap">{{ c.changed_at|date:"d M Y H:i" }}</td><td>{{ c.record.student.registration_number }}</td>
+    <td>{% if c.is_correction %}Correction: {{ c.get_old_status_display }} &rarr; {{ c.get_new_status_display }}{% else %}Recorded: {{ c.get_new_status_display }}{% endif %}</td>
+    <td>{{ c.reason|default:"-" }}</td><td>{{ c.changed_by.username|default:"-" }}</td></tr>
+  {% empty %}<tr><td colspan="5" class="text-secondary text-center py-3">Nothing recorded yet.</td></tr>{% endfor %}
+  </tbody></table></div></div>
+<p class="small text-secondary mt-2">Students you leave as "Not recorded" are not counted as absent. Mark them Absent explicitly if they did not attend.</p>
+{% endblock %}
+{% block scripts %}
+<script>
+  document.getElementById('mark-all-present')?.addEventListener('click', function () {
+    document.querySelectorAll('select[name^="status_"]').forEach(function (s) { if (!s.value) s.value = 'present'; });
+  });
+</script>
+{% endblock %}

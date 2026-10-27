@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Record submissions{% endblock %}
+{% block content %}
+<h1 class="page-title">Record submissions: {{ assignment.title }}</h1>
+<p class="page-sub mb-3">{{ assignment.offering.course.code }} · Deadline {{ assignment.deadline|date:"D d M Y H:i" }} · Max marks {{ assignment.max_marks }}. Times are Africa/Kampala.</p>
+{% if form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+{% if form.errors %}<div class="alert alert-danger" role="alert">Some rows have errors. Fix the highlighted fields and save again.</div>{% endif %}
+<form method="post" novalidate>{% csrf_token %}
+<div class="panel mb-3"><div class="table-responsive"><table class="table mb-0 align-middle">
+  <thead><tr><th>Student</th><th style="min-width:11rem">Status</th><th style="min-width:13rem">Submitted at</th><th style="min-width:13rem">Extension deadline</th><th style="min-width:7rem">Marks</th></tr></thead><tbody>
+  {% for r in rows %}<tr><td>{{ r.student.registration_number }}<div class="small text-secondary">{{ r.student.user.display_name }}</div></td>
+    <td><label class="visually-hidden" for="{{ r.status.id_for_label }}">{{ r.status.label }}</label>{{ r.status }}{% for e in r.status.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</td>
+    <td><label class="visually-hidden" for="{{ r.submitted_at.id_for_label }}">{{ r.submitted_at.label }}</label>{{ r.submitted_at }}{% for e in r.submitted_at.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</td>
+    <td><label class="visually-hidden" for="{{ r.extension.id_for_label }}">{{ r.extension.label }}</label>{{ r.extension }}{% for e in r.extension.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</td>
+    <td><label class="visually-hidden" for="{{ r.marks.id_for_label }}">{{ r.marks.label }}</label>{{ r.marks }}{% for e in r.marks.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</td></tr>
+  {% empty %}<tr><td colspan="5" class="text-secondary text-center py-4">No students are enrolled in this course.</td></tr>{% endfor %}
+  </tbody></table></div></div>
+<div class="panel panel-body mb-3">{% with f=form.records_complete %}<div class="form-check">{{ f }}<label class="form-check-label" for="{{ f.id_for_label }}">{{ f.label }}</label></div><div class="form-text">{{ f.help_text }}</div>{% endwith %}</div>
+<button class="btn btn-primary" type="submit">Save records</button>
+<a class="btn btn-link" href="{% url 'performance:assignment_detail' assignment.pk %}">Cancel</a>
+</form>
+<p class="small text-secondary mt-3">"No record" leaves a student untouched. Marks are only for submitted work. Marks you leave blank are never treated as zero.</p>
+{% endblock %}

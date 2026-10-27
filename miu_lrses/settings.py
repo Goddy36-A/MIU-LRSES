@@ -26,6 +26,8 @@ INSTALLED_APPS = [
     "apps.academics",
     "apps.timetables",
     "apps.reminders",
+    "apps.attendance",
+    "apps.performance",
 ]
 
 MIDDLEWARE = [

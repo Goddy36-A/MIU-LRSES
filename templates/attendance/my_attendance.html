@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}My attendance{% endblock %}
+{% block content %}
+<h1 class="page-title mb-3">My attendance</h1>
+{% if missing_profile %}<div class="pending-note mb-3">Your student profile has not been set up yet. Please ask the system administrator.</div>{% else %}
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{% if overall.rate is None %}n/a{% else %}{{ overall.rate }}%{% endif %}</div><div class="stat-label">Overall attendance rate</div></div></div>
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ overall.recorded }}</div><div class="stat-label">Lectures with a record</div></div></div>
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ overall.unrecorded }}</div><div class="stat-label">Held, not yet recorded</div></div></div>
+</div>
+<div class="panel mb-3"><div class="panel-head">By course</div><div class="table-responsive"><table class="table mb-0">
+  <thead><tr><th>Course</th><th>Held</th><th>Present</th><th>Late</th><th>Absent</th><th>Excused</th><th>Not recorded</th><th>Rate</th></tr></thead><tbody>
+  {% for offering, s in by_offering %}<tr><td>{{ offering.course.code }} - {{ offering.course.title }}</td>{% include "attendance/_summary_row.html" %}</tr>
+  {% empty %}<tr><td colspan="8" class="text-secondary text-center py-3">You are not enrolled in any course.</td></tr>{% endfor %}
+  </tbody></table></div></div>
+<div class="panel"><div class="panel-head">My attendance records</div><div class="table-responsive"><table class="table mb-0">
+  <thead><tr><th>Date</th><th>Course</th><th>Status</th></tr></thead><tbody>
+  {% for r in records %}<tr><td class="text-nowrap">{{ r.session.start_at|date:"D d M Y H:i" }}</td><td>{{ r.session.offering.course.code }}</td><td>{{ r.get_status_display }}</td></tr>
+  {% empty %}<tr><td colspan="3" class="text-secondary text-center py-3">No attendance has been recorded for you yet.</td></tr>{% endfor %}
+  </tbody></table></div></div>
+{% include "attendance/_rules_note.html" %}
+{% endif %}
+{% endblock %}
