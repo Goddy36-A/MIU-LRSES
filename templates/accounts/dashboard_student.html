@@ -3,11 +3,9 @@
 {% block content %}
 <h1 class="page-title">Welcome, {{ request.user.display_name }}</h1>
 <p class="page-sub mb-4">Student dashboard</p>
-<div class="pending-note mb-4" role="note">This dashboard is a Phase 1 placeholder. The features below are not built yet; nothing here shows real data.</div>
-<div class="panel"><div class="panel-head">Planned for students</div><div class="panel-body"><ul class="coming-list">
-<li><span>Personal lecture timetable and upcoming lectures</span><span class="text-secondary">Phase 2</span></li>
-<li><span>In-app lecture reminders (mark as read)</span><span class="text-secondary">Phase 3</span></li>
-<li><span>Personal attendance, assignment deadlines and results</span><span class="text-secondary">Phase 4</span></li>
-<li><span>Research questionnaires, if you are a consenting participant</span><span class="text-secondary">Phase 6</span></li>
-</ul></div></div>
+{% if missing_profile %}<div class="pending-note mb-4" role="note">Your student profile has not been set up yet. Please ask the system administrator.</div>{% endif %}
+<div class="row g-3 mb-4"><div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ course_count }}</div><div class="stat-label">Courses this semester</div></div></div></div>
+{% url 'timetables:my_timetable' as all_url %}
+{% include "partials/_upcoming.html" with all_url=all_url %}
+<div class="pending-note mt-4" role="note">Not built yet: in-app reminders (Phase 3), attendance, deadlines and results (Phase 4), questionnaires (Phase 6).</div>
 {% endblock %}

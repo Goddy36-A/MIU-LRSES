@@ -1,11 +1,10 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
-from django.db.models.signals import post_migrate
+from django.db.models.signals import post_migrate, post_save
 from django.dispatch import receiver
 
 from .audit import log_action
-from .models import Role
+from .models import Role, User
 
 ROLE_GROUPS = {
     Role.ADMIN: "System Administrator",
@@ -14,22 +13,38 @@ ROLE_GROUPS = {
     Role.RESEARCHER: "Researcher",
 }
 
-# Model permissions granted to each role group. Later phases extend this map.
-# Researchers and lecturers get none on accounts models.
-ROLE_PERMISSIONS = {
-    Role.ADMIN: [("accounts", ["add_user", "change_user", "view_user", "view_auditlog"])],
-}
+# Model permissions (for Django Admin) granted to each role group. Application pages enforce
+# access by role in the views; these permissions only govern /django-admin/, which only
+# administrators can open. Lecturers, students and researchers receive none.
+ADMIN_ADMIN_APPS = ("academics", "timetables")
+
+
+def _admin_permissions():
+    perms = Permission.objects.filter(
+        content_type__app_label="accounts", codename__in=["add_user", "change_user", "view_user", "view_auditlog"])
+    for app_label in ADMIN_ADMIN_APPS:
+        for prefix in ("add_", "change_", "view_"):
+            perms = perms | Permission.objects.filter(content_type__app_label=app_label, codename__startswith=prefix)
+    return perms
 
 
 @receiver(post_migrate)
 def ensure_role_groups(sender, **kwargs):
-    if sender.label != "accounts":
+    # Runs after every app's migrate step so permissions of later apps are picked up (idempotent).
+    groups = {role: Group.objects.get_or_create(name=name)[0] for role, name in ROLE_GROUPS.items()}
+    groups[Role.ADMIN].permissions.add(*_admin_permissions())
+
+
+@receiver(post_save, sender=User)
+def sync_role_group(sender, instance, raw=False, **kwargs):
+    """Keep each user in exactly one role group, matching User.role."""
+    if raw:
         return
-    for role, name in ROLE_GROUPS.items():
-        group, _ = Group.objects.get_or_create(name=name)
-        for app_label, codenames in ROLE_PERMISSIONS.get(role, []):
-            perms = Permission.objects.filter(content_type__app_label=app_label, codename__in=codenames)
-            group.permissions.add(*perms)
+    group, _ = Group.objects.get_or_create(name=ROLE_GROUPS[instance.role])
+    stale = instance.groups.filter(name__in=ROLE_GROUPS.values()).exclude(pk=group.pk)
+    if stale.exists():
+        instance.groups.remove(*stale)
+    instance.groups.add(group)
 
 
 @receiver(user_logged_in)

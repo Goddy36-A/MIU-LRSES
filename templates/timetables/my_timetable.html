@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}My timetable{% endblock %}
+{% block content %}
+<h1 class="page-title mb-3">My timetable</h1>
+{% if missing_profile %}<div class="pending-note mb-3">Your student profile has not been set up yet. Please ask the system administrator.</div>{% endif %}
+<ul class="nav nav-pills mb-3">
+  <li class="nav-item"><a class="nav-link {% if when == 'upcoming' %}active{% endif %}" href="?when=upcoming">Upcoming</a></li>
+  <li class="nav-item"><a class="nav-link {% if when == 'past' %}active{% endif %}" href="?when=past">Past</a></li>
+</ul>
+{% regroup sessions by local_date as days %}
+{% for day in days %}
+<div class="panel mb-3"><div class="panel-head">{{ day.grouper|date:"l d F Y" }}</div>
+  <div class="table-responsive"><table class="table mb-0 align-middle"><tbody>
+  {% for s in day.list %}
+    <tr {% if s.is_cancelled %}class="text-decoration-line-through text-secondary"{% endif %}>
+      <td class="text-nowrap">{{ s.start_at|date:"H:i" }} - {{ s.end_at|date:"H:i" }}</td>
+      <td>{{ s.offering.course.code }} - {{ s.offering.course.title }}{% if s.topic %}<div class="small text-secondary">{{ s.topic }}</div>{% endif %}</td>
+      <td>{{ s.venue.name }}</td><td>{{ s.lecturer.user.display_name }}</td>
+      <td>{% if s.is_cancelled %}<span class="badge text-bg-danger">Cancelled</span>{% endif %}</td></tr>
+  {% endfor %}
+  </tbody></table></div></div>
+{% empty %}
+<div class="panel panel-body text-secondary">No {{ when }} lectures.</div>
+{% endfor %}
+{% include "partials/_pagination.html" %}
+{% endblock %}

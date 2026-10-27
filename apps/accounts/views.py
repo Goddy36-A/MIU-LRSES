@@ -4,6 +4,7 @@ from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views import View
 from django.views.generic import CreateView, ListView, TemplateView, UpdateView
 
@@ -44,6 +45,13 @@ class AdminDashboardView(RoleRequiredMixin, TemplateView):
         ctx["total_users"] = sum(ctx["chart_values"])
         ctx["active_users"] = User.objects.filter(is_active=True).count()
         ctx["recent_audit"] = AuditLog.objects.select_related("actor")[:8]
+        from apps.academics.models import Course, CourseOffering, Programme, StudentProfile
+        from apps.timetables.models import LectureSession, SessionStatus
+        ctx["academic_counts"] = [
+            ("Programmes", Programme.objects.count()), ("Courses", Course.objects.count()),
+            ("Course offerings", CourseOffering.objects.count()), ("Student profiles", StudentProfile.objects.count()),
+            ("Upcoming lectures", LectureSession.objects.filter(status=SessionStatus.SCHEDULED, start_at__gte=timezone.now()).count()),
+        ]
         return ctx
 
 
@@ -51,10 +59,32 @@ class LecturerDashboardView(RoleRequiredMixin, TemplateView):
     allowed_roles = (Role.LECTURER,)
     template_name = "accounts/dashboard_lecturer.html"
 
+    def get_context_data(self, **kwargs):
+        from apps.academics.models import get_lecturer_profile
+        from apps.timetables.models import SessionStatus
+        from apps.timetables.services import sessions_for_lecturer
+        ctx = super().get_context_data(**kwargs)
+        profile = get_lecturer_profile(self.request.user)
+        ctx["missing_profile"] = profile is None
+        ctx["offering_count"] = profile.offerings.count() if profile else 0
+        ctx["upcoming"] = sessions_for_lecturer(profile).filter(
+            status=SessionStatus.SCHEDULED, end_at__gte=timezone.now()).order_by("start_at")[:6]
+        return ctx
+
 
 class StudentDashboardView(RoleRequiredMixin, TemplateView):
     allowed_roles = (Role.STUDENT,)
     template_name = "accounts/dashboard_student.html"
+
+    def get_context_data(self, **kwargs):
+        from apps.academics.models import EnrolmentStatus, get_student_profile
+        from apps.timetables.services import sessions_for_student
+        ctx = super().get_context_data(**kwargs)
+        profile = get_student_profile(self.request.user)
+        ctx["missing_profile"] = profile is None
+        ctx["course_count"] = profile.enrolments.filter(status=EnrolmentStatus.ENROLLED).count() if profile else 0
+        ctx["upcoming"] = sessions_for_student(self.request.user).filter(end_at__gte=timezone.now()).order_by("start_at")[:6]
+        return ctx
 
 
 class ResearcherDashboardView(RoleRequiredMixin, TemplateView):

@@ -1,0 +1,10 @@
+<div class="panel"><div class="panel-head d-flex justify-content-between"><span>Upcoming lectures</span>
+  <a class="small" href="{{ all_url }}">See all</a></div>
+  <div class="table-responsive"><table class="table mb-0 align-middle"><tbody>
+  {% for s in upcoming %}
+    <tr {% if s.is_cancelled %}class="text-decoration-line-through text-secondary"{% endif %}>
+      <td class="text-nowrap">{{ s.start_at|date:"D d M, H:i" }}</td>
+      <td>{{ s.offering.course.code }} - {{ s.offering.course.title }}</td><td>{{ s.venue.name }}</td>
+      <td>{% if s.is_cancelled %}<span class="badge text-bg-danger">Cancelled</span>{% endif %}</td></tr>
+  {% empty %}<tr><td class="text-secondary text-center py-4">No upcoming lectures.</td></tr>{% endfor %}
+  </tbody></table></div></div>

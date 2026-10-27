@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-start mb-3 gap-2">
+  <div><h1 class="page-title">{{ title }}</h1>{% if subtitle %}<p class="page-sub">{{ subtitle }}</p>{% endif %}</div>
+  {% if add_url %}<a class="btn btn-primary" href="{% url add_url %}">Add new</a>{% endif %}
+</div>
+{% if has_search or filters %}
+<form method="get" class="panel panel-body mb-3 row g-2 align-items-end">
+  {% if has_search %}
+  <div class="col-md-4"><label class="form-label" for="q">Search</label>
+    <input class="form-control" id="q" name="q" value="{{ q }}"{% if search_help %} placeholder="{{ search_help }}"{% endif %}></div>
+  {% endif %}
+  {% for f in filters %}
+  <div class="col-6 col-md-2"><label class="form-label" for="f-{{ f.param }}">{{ f.label }}</label>
+    {% if f.options == None %}
+      <input type="date" class="form-control" id="f-{{ f.param }}" name="{{ f.param }}" value="{{ f.selected }}">
+    {% else %}
+      <select class="form-select" id="f-{{ f.param }}" name="{{ f.param }}"><option value="">All</option>
+        {% for value, label in f.options %}<option value="{{ value }}" {% if value == f.selected %}selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+    {% endif %}</div>
+  {% endfor %}
+  <div class="col-auto d-flex gap-2"><button class="btn btn-outline-primary" type="submit">Filter</button>
+    <a class="btn btn-link" href="?">Clear</a></div>
+</form>
+{% endif %}
+<div class="panel"><div class="table-responsive">
+<table class="table table-hover mb-0 align-middle">
+  <thead><tr>{% for h in headers %}<th>{{ h }}</th>{% endfor %}{% if edit_url %}<th><span class="visually-hidden">Actions</span></th>{% endif %}</tr></thead>
+  <tbody>
+  {% for row in rows %}
+    <tr>
+      {% for cell in row.cells %}
+        <td>{% if forloop.first and detail_url %}<a href="{% url detail_url row.obj.pk %}">{{ cell }}</a>{% else %}{{ cell }}{% endif %}</td>
+      {% endfor %}
+      {% if edit_url %}<td class="text-end"><a href="{% url edit_url row.obj.pk %}">Edit</a></td>{% endif %}
+    </tr>
+  {% empty %}
+    <tr><td colspan="{{ headers|length|add:1 }}" class="text-secondary text-center py-4">{% if q %}No results match your search.{% else %}{{ empty_text }}{% endif %}</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div></div>
+<p class="text-secondary small mt-2 mb-0">{{ paginator.count }} record{{ paginator.count|pluralize }}</p>
+{% include "partials/_pagination.html" %}
+{% endblock %}

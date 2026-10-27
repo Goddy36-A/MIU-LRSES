@@ -1,14 +1,30 @@
-{% with name=request.resolver_match.url_name %}
+{% with name=request.resolver_match.url_name ns=request.resolver_match.namespace %}
 {% if request.user.is_system_admin %}
   <li><a class="nav-link {% if name == 'dashboard_admin' %}active{% endif %}" href="{% url 'accounts:dashboard_admin' %}">Dashboard</a></li>
+  <li class="nav-heading">Academic records</li>
+  <li><a class="nav-link {% if name == 'programme_list' or name == 'programme_add' or name == 'programme_edit' %}active{% endif %}" href="{% url 'academics:programme_list' %}">Programmes</a></li>
+  <li><a class="nav-link {% if name == 'course_list' or name == 'course_add' or name == 'course_edit' %}active{% endif %}" href="{% url 'academics:course_list' %}">Courses</a></li>
+  <li><a class="nav-link {% if name == 'year_list' or name == 'year_add' or name == 'year_edit' %}active{% endif %}" href="{% url 'academics:year_list' %}">Academic years</a></li>
+  <li><a class="nav-link {% if name == 'semester_list' or name == 'semester_add' or name == 'semester_edit' %}active{% endif %}" href="{% url 'academics:semester_list' %}">Semesters</a></li>
+  <li><a class="nav-link {% if name == 'offering_list' or name == 'offering_add' or name == 'offering_edit' or name == 'offering_detail' %}active{% endif %}" href="{% url 'academics:offering_list' %}">Course offerings</a></li>
+  <li><a class="nav-link {% if name == 'student_list' or name == 'student_add' or name == 'student_edit' %}active{% endif %}" href="{% url 'academics:student_list' %}">Students</a></li>
+  <li><a class="nav-link {% if name == 'lecturer_list' or name == 'lecturer_add' or name == 'lecturer_edit' %}active{% endif %}" href="{% url 'academics:lecturer_list' %}">Lecturers</a></li>
+  <li><a class="nav-link {% if name == 'enrolment_list' or name == 'enrolment_add' or name == 'enrolment_edit' %}active{% endif %}" href="{% url 'academics:enrolment_list' %}">Enrolments</a></li>
+  <li class="nav-heading">Timetable</li>
+  <li><a class="nav-link {% if ns == 'timetables' and name|slice:':5' == 'venue' %}active{% endif %}" href="{% url 'timetables:venue_list' %}">Venues</a></li>
+  <li><a class="nav-link {% if ns == 'timetables' and name|slice:':7' == 'session' %}active{% endif %}" href="{% url 'timetables:session_list' %}">Lectures</a></li>
   <li class="nav-heading">Administration</li>
-  <li><a class="nav-link {% if name == 'user_list' or name == 'user_add' or name == 'user_edit' %}active{% endif %}" href="{% url 'accounts:user_list' %}">Users</a></li>
+  <li><a class="nav-link {% if name == 'user_list' or name == 'user_add' or name == 'user_edit' %}active{% endif %}" href="{% url 'accounts:user_list' %}">User accounts</a></li>
   <li><a class="nav-link {% if name == 'audit_list' %}active{% endif %}" href="{% url 'accounts:audit_list' %}">Audit log</a></li>
   <li><a class="nav-link" href="{% url 'admin:index' %}">Database admin</a></li>
 {% elif request.user.is_lecturer %}
   <li><a class="nav-link {% if name == 'dashboard_lecturer' %}active{% endif %}" href="{% url 'accounts:dashboard_lecturer' %}">Dashboard</a></li>
+  <li><a class="nav-link {% if name == 'my_courses' or name == 'offering_detail' %}active{% endif %}" href="{% url 'academics:my_courses' %}">My courses</a></li>
+  <li><a class="nav-link {% if ns == 'timetables' %}active{% endif %}" href="{% url 'timetables:session_list' %}">My lectures</a></li>
 {% elif request.user.is_student %}
   <li><a class="nav-link {% if name == 'dashboard_student' %}active{% endif %}" href="{% url 'accounts:dashboard_student' %}">Dashboard</a></li>
+  <li><a class="nav-link {% if name == 'my_timetable' %}active{% endif %}" href="{% url 'timetables:my_timetable' %}">My timetable</a></li>
+  <li><a class="nav-link {% if name == 'my_courses' %}active{% endif %}" href="{% url 'academics:my_courses' %}">My courses</a></li>
 {% elif request.user.is_researcher %}
   <li><a class="nav-link {% if name == 'dashboard_researcher' %}active{% endif %}" href="{% url 'accounts:dashboard_researcher' %}">Dashboard</a></li>
 {% endif %}

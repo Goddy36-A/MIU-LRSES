@@ -9,5 +9,7 @@ handler403 = "apps.accounts.views.permission_denied_view"
 
 urlpatterns = [
     path("django-admin/", admin.site.urls),
+    path("academics/", include("apps.academics.urls")),
+    path("timetables/", include("apps.timetables.urls")),
     path("", include("apps.accounts.urls")),
 ]

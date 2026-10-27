@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1 class="page-title mb-3">{{ title }}</h1>
+<div class="panel" style="max-width: 720px;"><div class="panel-body">
+  <form method="post" novalidate>{% csrf_token %}
+    {% include "partials/_form_fields.html" %}
+    <button class="btn btn-primary" type="submit">{{ submit_label }}</button>
+    <a class="btn btn-link" href="{{ cancel_url }}">Cancel</a>
+  </form>
+</div></div>
+{% endblock %}

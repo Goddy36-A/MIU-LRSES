@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}{{ offering.course.code }}{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+  <div><h1 class="page-title">{{ offering.course.code }} - {{ offering.course.title }}</h1>
+  <p class="page-sub">{{ offering.semester }} · {{ offering.course.programme.code }} · Year {{ offering.course.year_of_study }}{% if not offering.is_active %} · <strong>Inactive</strong>{% endif %}</p></div>
+  <div class="d-flex gap-2 align-items-start">
+    {% if is_admin %}<a class="btn btn-outline-primary" href="{% url 'academics:offering_edit' offering.pk %}">Edit offering</a>{% endif %}
+    <a class="btn btn-primary" href="{% url 'timetables:session_add' %}">Schedule lecture</a>
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-6"><div class="panel h-100"><div class="panel-head">Lecturers</div><div class="panel-body">
+    {% for l in lecturers %}<div>{{ l.user.display_name }} <span class="text-secondary">({{ l.staff_number }})</span></div>{% empty %}<span class="text-secondary">No lecturer assigned.</span>{% endfor %}
+  </div></div></div>
+  <div class="col-lg-6"><div class="panel h-100"><div class="panel-head">Lectures</div>
+    <div class="table-responsive"><table class="table mb-0"><tbody>
+    {% for s in sessions %}<tr><td><a href="{% url 'timetables:session_detail' s.pk %}">{{ s.start_at|date:"D d M Y H:i" }}</a></td><td>{{ s.venue.name }}</td><td>{{ s.get_status_display }}</td></tr>
+    {% empty %}<tr><td class="text-secondary">No lectures scheduled.</td></tr>{% endfor %}
+    </tbody></table></div></div></div>
+  <div class="col-12"><div class="panel"><div class="panel-head">Enrolled students ({{ enrolments|length }})</div>
+    <div class="table-responsive"><table class="table mb-0"><thead><tr><th>Reg. number</th><th>Name</th><th>Programme</th><th>Status</th></tr></thead><tbody>
+    {% for e in enrolments %}<tr><td>{{ e.student.registration_number }}</td><td>{{ e.student.user.display_name }}</td><td>{{ e.student.programme.code }}</td><td>{{ e.get_status_display }}</td></tr>
+    {% empty %}<tr><td colspan="4" class="text-secondary text-center py-3">No students enrolled.</td></tr>{% endfor %}
+    </tbody></table></div></div></div>
+  {% if bulk_form %}
+  <div class="col-12"><div class="panel"><div class="panel-head">Enrol students</div><div class="panel-body">
+    <form method="post" action="{% url 'academics:offering_enrol' offering.pk %}" novalidate>{% csrf_token %}
+      {% include "partials/_form_fields.html" with form=bulk_form %}
+      <button class="btn btn-primary" type="submit">Enrol selected students</button>
+    </form></div></div></div>
+  {% endif %}
+</div>
+{% endblock %}

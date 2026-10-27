@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}My courses{% endblock %}
+{% block content %}
+<h1 class="page-title mb-3">My courses</h1>
+{% if missing_profile %}<div class="pending-note mb-3">Your {% if is_lecturer %}lecturer{% else %}student{% endif %} profile has not been set up yet. Please ask the system administrator.</div>{% endif %}
+<div class="panel"><div class="table-responsive"><table class="table mb-0 align-middle">
+<thead><tr><th>Course</th><th>Semester</th><th>Lecturers</th></tr></thead><tbody>
+{% for o in offerings %}
+<tr><td>{% if is_lecturer %}<a href="{% url 'academics:offering_detail' o.pk %}">{{ o.course.code }} - {{ o.course.title }}</a>{% else %}{{ o.course.code }} - {{ o.course.title }}{% endif %}</td>
+<td>{{ o.semester }}</td><td>{% for l in o.lecturers.all %}{{ l.user.display_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>
+{% empty %}<tr><td colspan="3" class="text-center text-secondary py-4">No courses yet.</td></tr>{% endfor %}
+</tbody></table></div></div>
+{% include "partials/_pagination.html" %}
+{% endblock %}

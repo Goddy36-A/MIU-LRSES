@@ -3,11 +3,11 @@
 {% block content %}
 <h1 class="page-title">Welcome, {{ request.user.display_name }}</h1>
 <p class="page-sub mb-4">Lecturer dashboard</p>
-<div class="pending-note mb-4" role="note">This dashboard is a Phase 1 placeholder. The features below are not built yet; nothing here shows real data.</div>
-<div class="panel"><div class="panel-head">Planned for lecturers</div><div class="panel-body"><ul class="coming-list">
-<li><span>View assigned courses and lecture schedules</span><span class="text-secondary">Phase 2</span></li>
-<li><span>Record and correct attendance</span><span class="text-secondary">Phase 4</span></li>
-<li><span>Create assignments, assessments and record marks</span><span class="text-secondary">Phase 4</span></li>
-<li><span>Course engagement and performance reports</span><span class="text-secondary">Phase 4</span></li>
-</ul></div></div>
+{% if missing_profile %}<div class="pending-note mb-4" role="note">Your lecturer profile has not been set up yet. Please ask the system administrator.</div>{% endif %}
+<div class="row g-3 mb-4"><div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ offering_count }}</div><div class="stat-label">Assigned course offerings</div></div></div></div>
+{% url 'timetables:session_list' as all_url %}
+{% include "partials/_upcoming.html" with all_url=all_url %}
+<div class="d-flex gap-2 mt-3"><a class="btn btn-primary" href="{% url 'timetables:session_add' %}">Schedule a lecture</a>
+<a class="btn btn-outline-primary" href="{% url 'academics:my_courses' %}">My courses</a></div>
+<div class="pending-note mt-4" role="note">Not built yet: attendance (Phase 4), assignments and marks (Phase 4), course reports (Phase 4).</div>
 {% endblock %}

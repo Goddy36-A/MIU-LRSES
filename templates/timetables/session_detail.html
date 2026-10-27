@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Lecture{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+  <div><h1 class="page-title">{{ session.offering.course.code }} - {{ session.offering.course.title }}</h1>
+  <p class="page-sub">{{ session.start_at|date:"l d F Y, H:i" }} to {{ session.end_at|date:"H:i" }} (Africa/Kampala)
+    {% if session.is_cancelled %}<span class="badge text-bg-danger ms-2">Cancelled</span>{% endif %}</p></div>
+  <div class="d-flex gap-2 align-items-start">
+    {% if can_modify %}<a class="btn btn-outline-primary" href="{% url 'timetables:session_edit' session.pk %}">Edit details</a>
+    <a class="btn btn-primary" href="{% url 'timetables:session_reschedule' session.pk %}">Reschedule</a>{% endif %}
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-6"><div class="panel h-100"><div class="panel-head">Details</div><div class="panel-body">
+    <dl class="row mb-0">
+      <dt class="col-4">Venue</dt><dd class="col-8">{{ session.venue }}</dd>
+      <dt class="col-4">Lecturer</dt><dd class="col-8">{{ session.lecturer.user.display_name }}</dd>
+      <dt class="col-4">Semester</dt><dd class="col-8">{{ session.offering.semester }}</dd>
+      <dt class="col-4">Topic</dt><dd class="col-8">{{ session.topic|default:"-" }}</dd>
+      {% if session.is_cancelled %}<dt class="col-4">Cancelled because</dt><dd class="col-8">{{ session.cancellation_reason }}</dd>{% endif %}
+    </dl></div></div></div>
+  {% if can_modify %}
+  <div class="col-lg-6"><div class="panel h-100"><div class="panel-head">Cancel this lecture</div><div class="panel-body">
+    <form method="post" action="{% url 'timetables:session_cancel' session.pk %}">{% csrf_token %}
+      {% include "partials/_form_fields.html" with form=cancel_form %}
+      <button class="btn btn-outline-danger" type="submit">Cancel lecture</button>
+    </form></div></div></div>
+  {% endif %}
+  <div class="col-12"><div class="panel"><div class="panel-head">Change history</div>
+    <div class="table-responsive"><table class="table mb-0"><thead><tr><th>When</th><th>Change</th><th>Details</th><th>By</th></tr></thead><tbody>
+    {% for c in changes %}<tr><td class="text-nowrap">{{ c.changed_at|date:"d M Y H:i" }}</td><td>{{ c.get_change_type_display }}</td>
+      <td>{% if c.change_type == 'rescheduled' %}{{ c.old_start_at|date:"d M H:i" }} ({{ c.old_venue }}) &rarr; {{ c.new_start_at|date:"d M H:i" }} ({{ c.new_venue }}). {% endif %}{{ c.reason }}</td>
+      <td>{{ c.changed_by.username|default:"-" }}</td></tr>{% endfor %}
+    </tbody></table></div></div></div>
+</div>
+<a class="btn btn-link mt-2" href="{% url 'timetables:session_list' %}">Back to lectures</a>
+{% endblock %}
