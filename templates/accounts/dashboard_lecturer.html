@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Lecturer dashboard{% endblock %}
+{% block content %}
+<h1 class="page-title">Welcome, {{ request.user.display_name }}</h1>
+<p class="page-sub mb-4">Lecturer dashboard</p>
+<div class="pending-note mb-4" role="note">This dashboard is a Phase 1 placeholder. The features below are not built yet; nothing here shows real data.</div>
+<div class="panel"><div class="panel-head">Planned for lecturers</div><div class="panel-body"><ul class="coming-list">
+<li><span>View assigned courses and lecture schedules</span><span class="text-secondary">Phase 2</span></li>
+<li><span>Record and correct attendance</span><span class="text-secondary">Phase 4</span></li>
+<li><span>Create assignments, assessments and record marks</span><span class="text-secondary">Phase 4</span></li>
+<li><span>Course engagement and performance reports</span><span class="text-secondary">Phase 4</span></li>
+</ul></div></div>
+{% endblock %}

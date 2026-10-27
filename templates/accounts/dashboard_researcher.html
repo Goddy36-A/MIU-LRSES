@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Researcher dashboard{% endblock %}
+{% block content %}
+<h1 class="page-title">Welcome, {{ request.user.display_name }}</h1>
+<p class="page-sub mb-4">Researcher dashboard</p>
+<div class="pending-note mb-4" role="note">This dashboard is a Phase 1 placeholder. The features below are not built yet; nothing here shows real data.</div>
+<div class="panel"><div class="panel-head">Planned for researchers</div><div class="panel-body"><ul class="coming-list">
+<li><span>Study profile, participant registration, consent and group allocation records</span><span class="text-secondary">Phase 5</span></li>
+<li><span>Baseline and post-intervention measurements</span><span class="text-secondary">Phase 5</span></li>
+<li><span>Questionnaires and TAM constructs</span><span class="text-secondary">Phase 6</span></li>
+<li><span>Group analytics, CSV exports and data dictionary</span><span class="text-secondary">Phase 7</span></li>
+</ul></div></div>
+{% endblock %}

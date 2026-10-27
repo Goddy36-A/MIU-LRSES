@@ -1,0 +1,15 @@
+{% with name=request.resolver_match.url_name %}
+{% if request.user.is_system_admin %}
+  <li><a class="nav-link {% if name == 'dashboard_admin' %}active{% endif %}" href="{% url 'accounts:dashboard_admin' %}">Dashboard</a></li>
+  <li class="nav-heading">Administration</li>
+  <li><a class="nav-link {% if name == 'user_list' or name == 'user_add' or name == 'user_edit' %}active{% endif %}" href="{% url 'accounts:user_list' %}">Users</a></li>
+  <li><a class="nav-link {% if name == 'audit_list' %}active{% endif %}" href="{% url 'accounts:audit_list' %}">Audit log</a></li>
+  <li><a class="nav-link" href="{% url 'admin:index' %}">Database admin</a></li>
+{% elif request.user.is_lecturer %}
+  <li><a class="nav-link {% if name == 'dashboard_lecturer' %}active{% endif %}" href="{% url 'accounts:dashboard_lecturer' %}">Dashboard</a></li>
+{% elif request.user.is_student %}
+  <li><a class="nav-link {% if name == 'dashboard_student' %}active{% endif %}" href="{% url 'accounts:dashboard_student' %}">Dashboard</a></li>
+{% elif request.user.is_researcher %}
+  <li><a class="nav-link {% if name == 'dashboard_researcher' %}active{% endif %}" href="{% url 'accounts:dashboard_researcher' %}">Dashboard</a></li>
+{% endif %}
+{% endwith %}

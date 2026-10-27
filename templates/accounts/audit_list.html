@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Audit log{% endblock %}
+{% block content %}
+<h1 class="page-title mb-3">Audit log</h1>
+<form method="get" class="mb-3 d-flex gap-2 align-items-end flex-wrap">
+  <div><label class="form-label" for="action">Action</label>
+  <select class="form-select" id="action" name="action"><option value="">All actions</option>
+    {% for a in actions %}<option value="{{ a }}" {% if a == action_filter %}selected{% endif %}>{{ a }}</option>{% endfor %}
+  </select></div>
+  <button class="btn btn-outline-primary" type="submit">Filter</button>
+</form>
+<div class="panel"><div class="table-responsive">
+<table class="table mb-0 align-middle">
+  <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Target</th><th>Details</th><th>IP</th></tr></thead>
+  <tbody>
+  {% for e in entries %}
+    <tr><td class="text-nowrap">{{ e.timestamp|date:"d M Y H:i" }}</td><td>{{ e.actor_label|default:"-" }}</td>
+    <td>{{ e.action }}</td><td>{{ e.target }}</td><td>{{ e.details }}</td><td>{{ e.ip_address|default:"-" }}</td></tr>
+  {% empty %}
+    <tr><td colspan="6" class="text-secondary py-4 text-center">No entries.</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div></div>
+{% include "partials/_pagination.html" %}
+{% endblock %}

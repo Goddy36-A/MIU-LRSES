@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Access denied{% endblock %}
+{% block content %}
+<h1 class="page-title mb-2">Access denied</h1>
+<p class="page-sub">Your role does not have permission to open this page.</p>
+<a class="btn btn-primary mt-3" href="{% url 'accounts:home' %}">Go to my dashboard</a>
+{% endblock %}

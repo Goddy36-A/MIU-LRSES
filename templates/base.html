@@ -1,0 +1,58 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Dashboard{% endblock %} · MIU-LRSES</title>
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+<a class="visually-hidden-focusable position-absolute p-2 bg-white" href="#main">Skip to main content</a>
+<div class="app-shell d-lg-flex">
+  <nav class="sidebar d-lg-block collapse" id="sidebar" aria-label="Main navigation">
+    <div class="brand">
+      <div class="brand-name">MIU-LRSES</div>
+      <div class="brand-sub">Lecture reminders and student engagement</div>
+    </div>
+    <ul class="nav flex-column py-2">
+      {% include "partials/_nav.html" %}
+    </ul>
+  </nav>
+
+  <div class="flex-grow-1 d-flex flex-column min-vw-0">
+    <header class="topbar d-flex align-items-center justify-content-between px-3 px-lg-4 py-2">
+      <button class="btn btn-outline-primary d-lg-none" type="button" data-bs-toggle="collapse"
+              data-bs-target="#sidebar" aria-controls="sidebar" aria-expanded="false">Menu</button>
+      <span class="d-none d-lg-inline text-secondary">Metropolitan International University, Biharwe</span>
+      <div class="dropdown ms-auto">
+        <button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          {{ request.user.display_name }}
+          <span class="badge badge-role ms-1">{{ request.user.get_role_display }}</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}">Change password</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}
+              <button class="dropdown-item" type="submit">Sign out</button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    </header>
+
+    <main id="main" class="p-3 p-lg-4">
+      {% include "partials/_messages.html" %}
+      {% block content %}{% endblock %}
+    </main>
+    <footer class="px-4 pb-3 text-secondary small">
+      Times shown in Africa/Kampala. Development build.
+    </footer>
+  </div>
+</div>
+<script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/app.js' %}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

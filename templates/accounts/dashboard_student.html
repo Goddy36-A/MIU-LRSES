@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Student dashboard{% endblock %}
+{% block content %}
+<h1 class="page-title">Welcome, {{ request.user.display_name }}</h1>
+<p class="page-sub mb-4">Student dashboard</p>
+<div class="pending-note mb-4" role="note">This dashboard is a Phase 1 placeholder. The features below are not built yet; nothing here shows real data.</div>
+<div class="panel"><div class="panel-head">Planned for students</div><div class="panel-body"><ul class="coming-list">
+<li><span>Personal lecture timetable and upcoming lectures</span><span class="text-secondary">Phase 2</span></li>
+<li><span>In-app lecture reminders (mark as read)</span><span class="text-secondary">Phase 3</span></li>
+<li><span>Personal attendance, assignment deadlines and results</span><span class="text-secondary">Phase 4</span></li>
+<li><span>Research questionnaires, if you are a consenting participant</span><span class="text-secondary">Phase 6</span></li>
+</ul></div></div>
+{% endblock %}

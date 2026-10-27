@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Administrator dashboard{% endblock %}
+{% block content %}
+<h1 class="page-title">Welcome, {{ request.user.display_name }}</h1>
+<p class="page-sub mb-4">System administrator dashboard</p>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ total_users }}</div><div class="stat-label">User accounts</div></div></div>
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ active_users }}</div><div class="stat-label">Active accounts</div></div></div>
+  {% for label, n in role_counts %}
+  {% if label != 'System administrator' %}
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ n }}</div><div class="stat-label">{{ label }}s</div></div></div>
+  {% endif %}
+  {% endfor %}
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="panel h-100"><div class="panel-head">Accounts by role</div>
+      <div class="panel-body">
+        <div style="position:relative; height:260px"><canvas id="roleChart" role="img" aria-label="Doughnut chart of user accounts by role"></canvas></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="panel h-100"><div class="panel-head d-flex justify-content-between">
+        <span>Recent activity</span><a href="{% url 'accounts:audit_list' %}" class="small">Full audit log</a></div>
+      <div class="table-responsive">
+        <table class="table mb-0 align-middle">
+          <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Target</th></tr></thead>
+          <tbody>
+          {% for e in recent_audit %}
+            <tr><td class="text-nowrap">{{ e.timestamp|date:"d M H:i" }}</td><td>{{ e.actor_label|default:"-" }}</td><td>{{ e.action }}</td><td>{{ e.target }}</td></tr>
+          {% empty %}
+            <tr><td colspan="4" class="text-secondary">No activity recorded yet.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="mt-3"><a class="btn btn-primary" href="{% url 'accounts:user_add' %}">Add user</a>
+<a class="btn btn-outline-primary" href="{% url 'accounts:user_list' %}">Manage users</a></div>
+{{ chart_labels|json_script:"chart-labels" }}
+{{ chart_values|json_script:"chart-values" }}
+{% endblock %}
+{% block scripts %}
+{% load static %}
+<script src="{% static 'vendor/chartjs/chart.umd.js' %}"></script>
+<script>
+  const labels = JSON.parse(document.getElementById('chart-labels').textContent);
+  const values = JSON.parse(document.getElementById('chart-values').textContent);
+  new Chart(document.getElementById('roleChart'), {
+    type: 'doughnut',
+    data: { labels: labels, datasets: [{ data: values,
+      backgroundColor: ['#14263c', '#0b6b66', '#c9822b', '#6a5a9a'] }] },
+    options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+</script>
+{% endblock %}
