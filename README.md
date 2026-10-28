@@ -38,6 +38,14 @@ python manage.py test
 ```
 Phases 1-6: 364 tests, all passing in the development sandbox run (Linux, Python 3.12, Django 5.2.18). Not yet run on Windows.
 
+## Demonstration data and guides
+`python manage.py seed_demo_data --password <demo-password>` creates clearly labelled **synthetic** records
+(usernames start with `demo_`; names and topics say SYNTHETIC/DEMO): users, offerings, enrolments and lectures.
+Remove them with `python manage.py seed_demo_data --remove`. Never use this on a database holding real data.
+Guides: `docs/USER_GUIDE_ADMIN.md`, `USER_GUIDE_LECTURER.md`, `USER_GUIDE_STUDENT.md`, `USER_GUIDE_RESEARCHER.md`,
+checklist `docs/DEMO_CHECKLIST.md`. Project-wide tests in `apps/core/tests.py` automatically check that every route
+requires sign-in and that every menu link works for every role.
+
 ## Roles and what each can do now
 | Role | Can do (Phases 1-4) |
 |---|---|

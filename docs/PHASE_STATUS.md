@@ -9,7 +9,7 @@
 | 5 | Research study: participants, consent, allocation records, baseline/post measurements, control-group reminder exclusion | Done |
 | 6 | Questionnaires: TAM constructs, Likert/choice/text items, assignment, student answering, completeness and descriptive reports | Done |
 | 7 | Analytics and exports | Not started |
-| 8 | Final verification and documentation | Not started |
+| 8 | Final verification and documentation | In progress: route/menu checks, demo data, guides and checklist done for Phases 1-6; analytics/export docs wait for Phase 7 |
 
 ## Phase 1 design decisions / assumptions
 - One primary role per user (`User.role`), exclusive; roles are not stacked.
