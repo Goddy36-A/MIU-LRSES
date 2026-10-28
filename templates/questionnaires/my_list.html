@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}My questionnaires{% endblock %}
+{% block content %}
+<h1 class="page-title">My questionnaires</h1>
+<p class="page-sub mb-3">Research questionnaires assigned to you. Your answers are confidential and reported using a research code, never your name.</p>
+<div class="panel"><ul class="list-group list-group-flush">
+  {% for a in assignments %}<li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div><div class="fw-semibold">{{ a.questionnaire.title }}</div>
+      <div class="small text-secondary">{% if a.due_date %}Due {{ a.due_date|date:"d M Y" }} · {% endif %}{% if a.response.is_submitted %}Submitted {{ a.response.submitted_at|date:"d M Y H:i" }}{% elif a.response %}In progress{% else %}Not started{% endif %}</div></div>
+    <a class="btn btn-{% if a.response.is_submitted %}outline-primary{% else %}primary{% endif %} btn-sm" href="{% url 'questionnaires:fill' a.pk %}">{% if a.response.is_submitted %}View my answers{% elif a.response %}Continue{% else %}Start{% endif %}</a></li>
+  {% empty %}<li class="list-group-item text-secondary text-center py-4">No questionnaires have been assigned to you.</li>{% endfor %}
+</ul></div>
+{% endblock %}

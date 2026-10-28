@@ -7,7 +7,7 @@
 | 3 | Reminders: intervals, scheduling, in-app notifications, `process_reminders`, reschedule/cancel handling | Done (Windows Task Scheduler steps unverified) |
 | 4 | Attendance and performance: attendance with audit trail, assignments, submissions, assessments, marks, reports | Done |
 | 5 | Research study: participants, consent, allocation records, baseline/post measurements, control-group reminder exclusion | Done |
-| 6 | Questionnaires | Not started |
+| 6 | Questionnaires: TAM constructs, Likert/choice/text items, assignment, student answering, completeness and descriptive reports | Done |
 | 7 | Analytics and exports | Not started |
 | 8 | Final verification and documentation | Not started |
 
@@ -62,3 +62,8 @@
   `cancel_pending_reminders_for` in `reminders/services.py`, administrator permissions limited to the study model in `accounts/signals.py`.
 - The test run uses a lower-iteration PBKDF2 hasher (`miu_lrses/test_hashers.py`, only when `test` is in the command) so the suite runs in seconds.
 - Ambiguities resolved with defaults (please confirm): see "Assumptions to confirm" in RESEARCH.md.
+
+## Phase 6 design decisions
+- App `questionnaires`; full description in [QUESTIONNAIRES.md](QUESTIONNAIRES.md). Depends on `research` (study, participants).
+- Items are locked once a questionnaire is opened (duplicate to correct); submitted responses are locked.
+- Ambiguities resolved with defaults (please confirm): see "Assumptions to confirm" in QUESTIONNAIRES.md.

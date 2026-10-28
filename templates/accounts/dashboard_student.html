@@ -15,5 +15,5 @@
   {% for n in recent_notifications %}<li class="list-group-item"><div class="fw-semibold">{{ n.title }}{% if not n.is_read %} <span class="badge text-bg-warning">Unread</span>{% endif %}</div>
     <div class="small text-secondary">{{ n.delivered_at|date:"D d M, H:i" }}</div></li>
   {% empty %}<li class="list-group-item text-secondary text-center py-4">No notifications yet.</li>{% endfor %}</ul></div>
-<div class="pending-note mt-4" role="note">Not built yet: research questionnaires (Phase 6).</div>
+{% if pending_questionnaires %}<div class="panel panel-body mt-4"><a href="{% url 'questionnaires:my_list' %}">You have {{ pending_questionnaires }} questionnaire{{ pending_questionnaires|pluralize }} to complete.</a></div>{% endif %}
 {% endblock %}

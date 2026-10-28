@@ -53,4 +53,12 @@ All tables are created by Django migrations. Foreign keys to history/records use
 - **Measurement**: participant, outcome, period (baseline/post_intervention), status (planned/collected/missing/not_applicable), value, collected_on, source, calculation_detail, missing_reason. Unique (participant, outcome, period); check: value present only when collected.
 - **MeasurementRevision**: append-only; old/new status and value, reason, changed_by.
 
-Tables for questionnaires are added in Phase 6.
+## questionnaires
+- **Questionnaire**: study, title, instructions, research_question, period (blank/baseline/post_intervention), status (draft/open/closed), is_example, items_approved/approved_by/approved_at, opened_at, closed_at, created_by.
+- **Question**: questionnaire, order, text, qtype (likert/choice/text), construct (PU/PEOU/BI or blank), required, reverse_scored.
+- **Option**: question, order, label (multiple choice only).
+- **Assignment**: questionnaire, participant (-> research.Participant), due_date, assigned_by, assigned_at. Unique (questionnaire, participant).
+- **Response**: assignment (1:1), status (draft/submitted), started_at, submitted_at (set only when submitted), updated_at.
+- **Answer**: response, question, likert_value (1-5), option, text. Unique (response, question); check: likert 1-5.
+
+Tables for analytics and exports are added in Phase 7 (or computed from the above).

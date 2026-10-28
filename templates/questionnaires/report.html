@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Report{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+  <div><h1 class="page-title">Report: {{ q.title }}</h1><p class="page-sub">Descriptive summaries of submitted responses. No statistical tests are applied here, and no conclusion follows from these numbers alone.</p></div>
+  <a class="btn btn-outline-primary align-self-start" href="{% url 'questionnaires:detail' q.pk %}">Back to questionnaire</a>
+</div>
+{% if q.is_example %}<div class="pending-note mb-3" role="note">This questionnaire contains unapproved example items.</div>{% endif %}
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ completeness.assigned }}</div><div class="stat-label">Assigned</div></div></div>
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ completeness.submitted }}</div><div class="stat-label">Submitted</div></div></div>
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{% if completeness.response_rate is None %}n/a{% else %}{{ completeness.response_rate }}%{% endif %}</div><div class="stat-label">Response rate</div></div></div>
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ completeness.withdrawn }}</div><div class="stat-label">Withdrawn</div></div></div>
+</div>
+<div class="panel panel-body mb-3 small"><strong>Status of assigned participants who have not withdrawn ({{ completeness.eligible_to_answer }}):</strong>
+  {{ completeness.submitted }} submitted · {{ completeness.in_progress }} in progress · {{ completeness.not_started }} not started.
+  Response rate = submitted / participants who have not withdrawn. Responses of participants who withdrew asking for all data to be excluded are left out of every summary ({{ completeness.usable }} response(s) used).</div>
+<div class="panel mb-3"><div class="panel-head">TAM construct scores</div>
+  {% if constructs %}
+  <div class="table-responsive"><table class="table mb-0 align-middle"><thead><tr><th>Construct</th><th>Items</th><th>Group</th><th>n</th><th>Mean (1-5)</th><th>SD</th><th>Min</th><th>Max</th></tr></thead><tbody>
+  {% for c in constructs %}
+    {% for name, d in c.groups %}<tr><td>{% if forloop.first %}{{ c.label }}{% endif %}</td><td>{% if forloop.first %}{{ c.items }}{% endif %}</td><td>{{ name }}</td><td>{{ d.n }}</td><td>{{ d.mean }}</td><td>{{ d.sd|default:"-" }}</td><td>{{ d.min }}</td><td>{{ d.max }}</td></tr>{% endfor %}
+    <tr class="table-light"><td>{% if not c.groups %}{{ c.label }}{% endif %}</td><td>{% if not c.groups %}{{ c.items }}{% endif %}</td><td><em>All</em></td><td>{{ c.overall.n }}</td><td>{{ c.overall.mean|default:"n/a" }}</td><td>{{ c.overall.sd|default:"-" }}</td><td>{{ c.overall.min|default:"-" }}</td><td>{{ c.overall.max|default:"-" }}</td></tr>
+    {% if c.incomplete %}<tr><td colspan="8" class="small text-secondary">{{ c.incomplete }} submitted response(s) skipped an item of {{ c.label }}, so no score is calculated for them.</td></tr>{% endif %}
+  {% endfor %}</tbody></table></div>
+  <div class="panel-body small text-secondary">A construct score is the mean of its Likert items (reverse-scored items flipped as 6 - value), calculated only when every item was answered. "n/a" means no complete response yet.</div>
+  {% if chart.labels and completeness.usable %}<div class="panel-body"><div style="position:relative;height:260px"><canvas id="constructChart" role="img" aria-label="Bar chart of mean TAM construct scores by group"></canvas></div></div>{% endif %}
+  {% else %}<div class="panel-body text-secondary">This questionnaire has no items assigned to a TAM construct.</div>{% endif %}
+</div>
+<div class="panel mb-3"><div class="panel-head">Completeness by question</div><div class="table-responsive"><table class="table mb-0"><thead><tr><th>#</th><th>Question</th><th>Answered</th><th>Skipped</th><th>% answered</th></tr></thead><tbody>
+  {% for r in completeness.questions %}<tr><td>{{ r.question.order }}</td><td>{{ r.question.text }}</td><td>{{ r.answered }}</td><td>{{ r.skipped }}</td><td>{% if r.answered_pct is None %}n/a{% else %}{{ r.answered_pct }}%{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="5" class="text-secondary text-center py-3">No questions.</td></tr>{% endfor %}</tbody></table></div></div>
+<div class="panel"><div class="panel-head">Answers by question</div><div class="table-responsive"><table class="table mb-0 align-middle"><thead><tr><th>#</th><th>Question</th><th>n</th><th>Distribution</th></tr></thead><tbody>
+  {% for s in summaries %}<tr><td>{{ s.question.order }}</td><td>{{ s.question.text }}</td><td>{{ s.n }}</td><td class="small">
+    {% if s.question.qtype == 'text' %}Free-text comments are read one response at a time.{% else %}{% for key, label, count in s.counts %}{{ label }}: <strong>{{ count }}</strong>{% if not forloop.last %} · {% endif %}{% endfor %}{% if s.mean is not None %}<br>Mean {{ s.mean }}{% endif %}{% endif %}</td></tr>
+  {% endfor %}</tbody></table></div></div>
+{{ chart|json_script:"construct-chart" }}
+{% endblock %}
+{% block scripts %}{% load static %}
+{% if chart.labels and completeness.usable %}
+<script src="{% static 'vendor/chartjs/chart.umd.js' %}"></script>
+<script>
+  var cfg = JSON.parse(document.getElementById('construct-chart').textContent);
+  var colours = ['#0b6b66', '#b4570a', '#5b6770'];
+  cfg.datasets.forEach(function (d, i) { d.backgroundColor = colours[i % colours.length]; });
+  new Chart(document.getElementById('constructChart'), {type: 'bar', data: cfg,
+    options: {maintainAspectRatio: false, scales: {y: {min: 1, max: 5, title: {display: true, text: 'Mean score (1-5)'}}}}});
+</script>
+{% endif %}
+{% endblock %}

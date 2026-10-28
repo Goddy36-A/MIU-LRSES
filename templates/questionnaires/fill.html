@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ a.questionnaire.title }}{% endblock %}
+{% block content %}
+<h1 class="page-title">{{ a.questionnaire.title }}</h1>
+{% if a.questionnaire.instructions %}<p class="page-sub">{{ a.questionnaire.instructions|linebreaksbr }}</p>{% endif %}
+{% if submitted %}<div class="pending-note mb-3" role="note">You submitted this questionnaire on {{ a.response.submitted_at|date:"d M Y H:i" }}. It can no longer be changed.</div>
+{% elif not open %}<div class="pending-note mb-3" role="note">This questionnaire is closed.</div>{% endif %}
+<form method="post" novalidate>{% csrf_token %}
+  {% if form.non_field_errors %}<div class="alert alert-danger" role="alert"><ul class="mb-0">{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
+  {% for q, field in form.rows %}
+  <fieldset class="panel panel-body mb-3"{% if submitted or not open %} disabled{% endif %}>
+    <legend class="fs-6 fw-semibold">{{ field.label }}{% if q.required %} <span class="text-danger" aria-label="required">*</span>{% endif %}</legend>
+    {% if q.qtype == 'text' %}{{ field }}
+    {% else %}<div class="d-flex flex-wrap gap-3">{% for radio in field %}<div class="form-check">{{ radio.tag }}<label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label></div>{% endfor %}</div>{% endif %}
+  </fieldset>
+  {% endfor %}
+  {% if not submitted and open %}<button class="btn btn-outline-primary" type="submit" name="save">Save and finish later</button>
+  <button class="btn btn-primary" type="submit" name="submit">Submit</button>{% endif %}
+  <a class="btn btn-link" href="{% url 'questionnaires:my_list' %}">Back</a>
+</form>
+{% endblock %}

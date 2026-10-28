@@ -94,6 +94,8 @@ class StudentDashboardView(RoleRequiredMixin, TemplateView):
         ctx["upcoming"] = sessions_for_student(self.request.user).filter(end_at__gte=timezone.now()).order_by("start_at")[:6]
         from apps.reminders.services import inbox_for, unread_count
         ctx["unread_count"] = unread_count(self.request.user)
+        from apps.questionnaires.services import pending_count
+        ctx["pending_questionnaires"] = pending_count(self.request.user)
         ctx["recent_notifications"] = inbox_for(self.request.user)[:4]
         if profile:
             from apps.attendance.services import student_summary

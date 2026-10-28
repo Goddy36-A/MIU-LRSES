@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Response{% endblock %}
+{% block content %}
+<h1 class="page-title">{{ assignment.participant.research_code }}</h1>
+<p class="page-sub mb-3">{{ assignment.questionnaire.title }} · {{ assignment.participant.get_group_display|default:"Not allocated" }}
+  · {% if response %}{{ response.get_status_display }}{% if response.submitted_at %} on {{ response.submitted_at|date:"d M Y H:i" }}{% endif %}{% else %}Not started{% endif %}</p>
+{% if assignment.participant.is_withdrawn %}<div class="pending-note mb-3" role="note">This participant withdrew on {{ assignment.participant.withdrawn_on|date:"d M Y" }} ({{ assignment.participant.get_withdrawal_data_handling_display }}).</div>{% endif %}
+{% if scores %}<div class="panel panel-body mb-3"><strong>TAM construct scores for this response:</strong>
+  {% for c, v in scores %}<span class="ms-3">{{ c }}: {% if v is None %}<span class="text-secondary">incomplete</span>{% else %}{{ v }}{% endif %}</span>{% endfor %}</div>{% endif %}
+<div class="panel"><div class="table-responsive"><table class="table mb-0"><thead><tr><th>#</th><th>Question</th><th>Answer</th></tr></thead><tbody>
+  {% for r in rows %}<tr><td>{{ r.q.order }}</td><td>{{ r.q.text }}</td><td>
+    {% if not r.a %}<span class="text-secondary">No answer</span>
+    {% elif r.a.likert_value %}{{ r.a.likert_value }} ({{ r.likert }})
+    {% elif r.a.option %}{{ r.a.option.label }}
+    {% else %}{{ r.a.text|linebreaksbr }}{% endif %}</td></tr>{% endfor %}
+</tbody></table></div></div>
+<a class="btn btn-link mt-2" href="{% url 'questionnaires:responses' assignment.questionnaire.pk %}">Back to responses</a>
+{% endblock %}

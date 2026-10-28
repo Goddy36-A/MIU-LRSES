@@ -40,6 +40,7 @@
   <li><a class="nav-link {% if ns == 'attendance' %}active{% endif %}" href="{% url 'attendance:my_attendance' %}">My attendance</a></li>
   <li><a class="nav-link {% if name == 'my_deadlines' %}active{% endif %}" href="{% url 'performance:my_deadlines' %}">Assignment deadlines</a></li>
   <li><a class="nav-link {% if name == 'my_results' %}active{% endif %}" href="{% url 'performance:my_results' %}">My results</a></li>
+  <li><a class="nav-link {% if ns == 'questionnaires' %}active{% endif %}" href="{% url 'questionnaires:my_list' %}">Questionnaires</a></li>
   <li><a class="nav-link {% if name == 'notifications' %}active{% endif %}" href="{% url 'reminders:notifications' %}">Notifications{% if unread_notifications %} <span class="badge text-bg-warning ms-1" data-unread-badge>{{ unread_notifications }}</span>{% endif %}</a></li>
 {% elif request.user.is_researcher %}
   <li><a class="nav-link {% if name == 'dashboard_researcher' %}active{% endif %}" href="{% url 'accounts:dashboard_researcher' %}">Dashboard</a></li>
@@ -51,5 +52,6 @@
   <li class="nav-heading">Data</li>
   <li><a class="nav-link {% if ns == 'research' and name|slice:':11' == 'measurement' %}active{% endif %}" href="{% url 'research:measurement_list' %}">Measurements</a></li>
   <li><a class="nav-link {% if ns == 'research' and name == 'completeness' %}active{% endif %}" href="{% url 'research:completeness' %}">Data completeness</a></li>
+  <li><a class="nav-link {% if ns == 'questionnaires' %}active{% endif %}" href="{% url 'questionnaires:list' %}">Questionnaires</a></li>
 {% endif %}
 {% endwith %}

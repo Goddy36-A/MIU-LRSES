@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ q.title }}{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+  <div><h1 class="page-title">{{ q.title }}</h1>
+    <p class="page-sub">{{ q.get_status_display }}{% if q.period %} · {{ q.get_period_display }}{% endif %}{% if q.items_approved %} · <span class="badge text-bg-success">Items approved</span>{% else %} · <span class="badge text-bg-warning">Items not approved</span>{% endif %}</p></div>
+  <div class="d-flex flex-wrap gap-2 align-items-start">
+    {% if q.items_editable %}<a class="btn btn-outline-primary" href="{% url 'questionnaires:edit' q.pk %}">Edit details</a>
+      <a class="btn btn-outline-primary" href="{% url 'questionnaires:question_add' q.pk %}">Add question</a>{% endif %}
+    <a class="btn btn-outline-primary" href="{% url 'questionnaires:responses' q.pk %}">Responses</a>
+    <a class="btn btn-outline-primary" href="{% url 'questionnaires:report' q.pk %}">Report</a>
+  </div>
+</div>
+{% if q.is_example %}<div class="pending-note mb-3" role="note"><strong>Example content.</strong> These items were written as a starting point only. They are not an approved or validated instrument. Review and edit them, then approve, before use.</div>{% endif %}
+<div class="row g-3 mb-3">
+  <div class="col-lg-7"><div class="panel h-100"><div class="panel-head">Instructions and research question</div><div class="panel-body">
+    <p>{{ q.instructions|default:"No instructions."|linebreaksbr }}</p>
+    <p class="mb-0 small text-secondary"><strong>Research question / construct:</strong> {{ q.research_question|default:"-" }}</p></div></div></div>
+  <div class="col-lg-5"><div class="panel h-100"><div class="panel-head">Status actions</div><div class="panel-body d-flex flex-wrap gap-2">
+    {% if q.status == 'draft' %}
+      <form method="post" action="{% url 'questionnaires:action' q.pk 'approve' %}">{% csrf_token %}<button class="btn btn-outline-primary" type="submit">I have reviewed and approve these items</button></form>
+    {% endif %}
+    {% if q.status != 'open' %}<form method="post" action="{% url 'questionnaires:action' q.pk 'open' %}">{% csrf_token %}<button class="btn btn-primary" type="submit">Open for answers</button></form>{% endif %}
+    {% if q.status == 'open' %}<form method="post" action="{% url 'questionnaires:action' q.pk 'close' %}">{% csrf_token %}<button class="btn btn-outline-danger" type="submit">Close</button></form>{% endif %}
+    <form method="post" action="{% url 'questionnaires:action' q.pk 'duplicate' %}">{% csrf_token %}<button class="btn btn-outline-primary" type="submit">Duplicate as new draft</button></form>
+    <div class="small text-secondary w-100">Approval here means you have reviewed the items. It is not ethical approval. Items cannot be edited once the questionnaire has been opened.</div>
+  </div></div></div>
+</div>
+{% if q.status == 'open' %}
+<div class="panel mb-3"><div class="panel-head">Assign to participants ({{ assigned }} assigned so far)</div><div class="panel-body">
+  <form method="post" action="{% url 'questionnaires:action' q.pk 'assign' %}" class="row g-2 align-items-end">{% csrf_token %}
+    <div class="col-md-4"><label class="form-label" for="id_target">Assign to</label>{{ assign_form.target }}</div>
+    <div class="col-md-3"><label class="form-label" for="id_due_date">Due date (optional)</label>{{ assign_form.due_date }}</div>
+    <div class="col-auto"><button class="btn btn-primary" type="submit">Assign</button></div>
+  </form>
+  <div class="form-text mt-2">Only enrolled participants who have given consent and have not withdrawn are included. Nobody is assigned automatically; run this again after enrolling more participants. Participants see the questionnaire under Questionnaires in their own account.</div>
+</div></div>
+{% endif %}
+<div class="panel"><div class="panel-head">Questions ({{ questions|length }})</div><div class="table-responsive"><table class="table mb-0 align-middle">
+  <thead><tr><th>#</th><th>Question</th><th>Type</th><th>Construct</th><th>Required</th>{% if q.items_editable %}<th></th>{% endif %}</tr></thead><tbody>
+  {% for qu in questions %}<tr><td>{{ qu.order }}</td>
+    <td>{{ qu.text }}{% if qu.reverse_scored %} <span class="badge text-bg-secondary">reverse scored</span>{% endif %}
+      {% if qu.qtype == 'choice' %}<div class="small text-secondary">{% for o in qu.options.all %}{{ o.label }}{% if not forloop.last %} · {% endif %}{% endfor %}</div>{% endif %}</td>
+    <td>{{ qu.get_qtype_display }}</td><td>{{ qu.construct|default:"-" }}</td><td>{{ qu.required|yesno:"Yes,No" }}</td>
+    {% if q.items_editable %}<td class="text-end text-nowrap"><a href="{% url 'questionnaires:question_edit' q.pk qu.pk %}">Edit</a>
+      <form class="d-inline" method="post" action="{% url 'questionnaires:question_delete' q.pk qu.pk %}">{% csrf_token %}<button class="btn btn-link btn-sm text-danger p-0 ms-2" type="submit">Delete</button></form></td>{% endif %}</tr>
+  {% empty %}<tr><td colspan="6" class="text-secondary text-center py-4">No questions yet.</td></tr>{% endfor %}
+</tbody></table></div></div>
+<div class="small text-secondary mt-2">Likert scale: {% for v, label in likert.items %}{{ v }} = {{ label }}{% if not forloop.last %}; {% endif %}{% endfor %}.</div>
+<a class="btn btn-link mt-2" href="{% url 'questionnaires:list' %}">Back to questionnaires</a>
+{% endblock %}
