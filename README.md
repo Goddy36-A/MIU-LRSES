@@ -12,7 +12,34 @@ No institutional ethical approval is claimed by this software. No research data 
 Python, Django 5.2, SQLite3, Django templates, Bootstrap 5.3 and Chart.js 4 (both bundled locally in
 `static/vendor/`, so no internet is needed at runtime). Time zone: Africa/Kampala.
 
-## Windows installation
+## Quick start on Windows (no commands to type)
+1. **Install Python once** from https://www.python.org/downloads/ (version 3.10 or newer). In the installer, **tick "Add python.exe to PATH"**, then click Install.
+2. **Unzip** the project folder anywhere (for example your Desktop or `C:\MIU-LRSES`).
+3. **Double-click `start.bat`.** The first time, it creates a private Python environment, installs the packages (needs internet once),
+   prepares the database, asks you to choose an **administrator username and password** (typing the password is hidden), and offers to load
+   clearly labelled **synthetic demo data**. Then it starts the system and opens your browser at http://127.0.0.1:8000/.
+4. **Next time**, double-click `start.bat` again - it skips setup and starts straight away. Keep the black window open while you use the system;
+   press `Ctrl+C` in it (or close it) to stop.
+
+While that window is open it also processes lecture reminders about once a minute, so in-app reminders are delivered without Task Scheduler.
+When the window is closed, no reminders are processed (see `docs/REMINDERS.md` to schedule them permanently). Reminders remain in-app only.
+
+| File | What it does |
+|---|---|
+| `start.bat` | Sets up on first use, then starts the system. The only file most people need. |
+| `setup.bat` | Re-runs setup (safe to repeat; finished steps are skipped). |
+| `run_tests.bat` | Runs the automated tests. |
+| `start.sh` | The same as `start.bat` for macOS/Linux. |
+
+Options for `start.bat` (rarely needed): `--port 8080`, `--no-browser`, `--no-reminders`.
+Not working? "Python was not found" -> install Python as in step 1 and tick the PATH box. "Package installation failed" -> check the internet connection and run `start.bat` again.
+If the administrator step is cancelled or fails, nothing is marked finished, and `start.bat` asks again next time.
+
+> **Tested status:** `setup_local.py`, `run_server.py` and `start.sh` were tested on Linux (fresh copy: setup with weak/strong passwords, interactive prompts,
+> re-run, demo data, server start, logins, busy-port fallback, reminder loop, Ctrl+C and SIGTERM shutdown). The `.bat` files are thin wrappers
+> that call those Python scripts; they have **not been run on Windows** in this environment. If a `.bat` misbehaves, the manual commands below still work.
+
+## Manual installation (alternative)
 Open Command Prompt in the project folder (the one containing `manage.py`):
 
 ```
@@ -36,7 +63,7 @@ Then open http://127.0.0.1:8000/ and sign in with the account you created.
 ```
 python manage.py test
 ```
-Phases 1-6: 364 tests, all passing in the development sandbox run (Linux, Python 3.12, Django 5.2.18). Not yet run on Windows.
+Phases 1-6 plus project-wide checks: 376 tests, all passing in the development sandbox run (Linux, Python 3.12, Django 5.2.18). Not yet run on Windows.
 
 ## Demonstration data and guides
 `python manage.py seed_demo_data --password <demo-password>` creates clearly labelled **synthetic** records

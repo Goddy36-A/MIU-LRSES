@@ -131,3 +131,31 @@ class DemoDataCommandTests(TestCase):
         for s in LectureSession.objects.all():
             self.assertEqual(find_conflicts(offering=s.offering, lecturer=s.lecturer, venue=s.venue, start=s.start_at,
                                             end=s.end_at, exclude_pk=s.pk), [], s)
+
+
+class OneClickSetupFilesTests(TestCase):
+    """Guards for the double-click setup files (they cannot be run by this suite on Windows)."""
+
+    ROOT = __import__("pathlib").Path(__file__).resolve().parents[2]
+
+    def test_python_launchers_are_valid_python(self):
+        import ast
+        for name in ("setup_local.py", "run_server.py"):
+            ast.parse((self.ROOT / name).read_text(encoding="utf-8"), filename=name)
+
+    def test_batch_files_are_crlf_ascii_and_point_at_real_files(self):
+        for name in ("start.bat", "setup.bat", "run_tests.bat"):
+            raw = (self.ROOT / name).read_bytes()
+            self.assertNotIn(b"\n", raw.replace(b"\r\n", b""), f"{name} must use Windows line endings")
+            raw.decode("ascii")  # non-ASCII text can break cmd.exe
+        start = (self.ROOT / "start.bat").read_text()
+        self.assertIn("setup.bat", start)
+        self.assertIn("run_server.py", start)
+        self.assertIn("setup_local.py", (self.ROOT / "setup.bat").read_text())
+        for name in ("setup.bat", "setup_local.py", "run_server.py", "requirements.txt", "manage.py"):
+            self.assertTrue((self.ROOT / name).exists(), name)
+
+    def test_setup_state_and_virtualenv_are_not_committed(self):
+        ignore = (self.ROOT / ".gitignore").read_text()
+        for entry in (".setup_done", "venv/", "db.sqlite3"):
+            self.assertIn(entry, ignore)

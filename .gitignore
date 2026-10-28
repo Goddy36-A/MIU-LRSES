@@ -8,3 +8,4 @@ staticfiles/
 *.log
 exports/
 logs/
+.setup_done

@@ -63,6 +63,9 @@ Scheduler shows the failure. Administrators can also press **Process due reminde
 Overlapping runs are safe: each reminder is claimed with an atomic compare-and-swap before delivery, so two
 simultaneous runs cannot both deliver it. (If a run is killed mid-reminder, that reminder is retried on the next run.)
 
+## Quick option for a local demonstration
+If you start the system with `start.bat` (or `run_server.py`), the reminder processor runs automatically about once a minute **while that window is open** (output in `logs\reminders.log`). Use `--no-reminders` to turn this off. Closing the window stops it; for reminders that keep working when nobody has the system open, use Task Scheduler below.
+
 ## Scheduling on Windows (Task Scheduler)
 The command only does work when something runs it. **If it is not scheduled, no reminders are delivered.**
 Run it at least every 5 minutes (a 15-minute reminder can be up to one interval late).

@@ -67,3 +67,7 @@
 - App `questionnaires`; full description in [QUESTIONNAIRES.md](QUESTIONNAIRES.md). Depends on `research` (study, participants).
 - Items are locked once a questionnaire is opened (duplicate to correct); submitted responses are locked.
 - Ambiguities resolved with defaults (please confirm): see "Assumptions to confirm" in QUESTIONNAIRES.md.
+
+## Phase 8 - one-click local setup
+- `start.bat` / `setup.bat` / `run_tests.bat` (Windows) and `start.sh` (macOS/Linux) wrap `setup_local.py` (venv, packages, migrations, administrator account with password validation, optional synthetic demo data) and `run_server.py` (migrations, free-port check, browser, background reminder processing every 60 s while the window is open).
+- Tested on Linux only; the `.bat` wrappers are untested on Windows. The background reminder loop is a localhost convenience, not a replacement for Task Scheduler.
