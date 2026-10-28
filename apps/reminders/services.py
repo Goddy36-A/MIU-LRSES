@@ -194,6 +194,13 @@ def sync_session_reminders(session, *, now=None):
     return stats
 
 
+def cancel_pending_reminders_for(user, detail, *, now=None):
+    """Cancel a user's pending (not yet delivered) reminders, for example when a study rule makes them ineligible.
+    Delivered reminders are kept as history. Returns the number cancelled."""
+    return _cancel(Notification.objects.filter(recipient=user, kind=NotificationKind.REMINDER,
+                                               status=NotificationStatus.PENDING), detail, now or timezone.now())
+
+
 def sync_upcoming(*, now=None):
     """Synchronise reminders for every scheduled lecture that has not started, and tidy up cancelled ones."""
     now = now or timezone.now()

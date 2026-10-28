@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Measurement{% endblock %}
+{% block content %}
+<h1 class="page-title">{{ m.outcome.name }}</h1>
+<p class="page-sub mb-3">{{ m.participant.research_code }} · {{ m.get_period_display }} · {{ state_label }}</p>
+<div class="row g-3">
+  <div class="col-lg-6"><div class="panel"><div class="panel-head">Record or correct</div><div class="panel-body">
+    <p class="small text-secondary">{{ m.outcome.definition|default:"No definition written for this outcome."|linebreaksbr }}</p>
+    <form method="post" novalidate>{% csrf_token %}{% include "partials/_form_fields.html" %}
+      <button class="btn btn-primary" type="submit">Save</button><a class="btn btn-link" href="{% url 'research:measurement_list' %}">Cancel</a></form>
+    {% if can_calculate %}<hr><form method="post" action="{% url 'research:measurement_calculate' m.pk %}">{% csrf_token %}
+      <button class="btn btn-outline-primary" type="submit">Calculate from system records</button>
+      <div class="form-text">Uses attendance, submissions, marks or reminders in the {{ m.get_period_display|lower }} window. Only for enrolled, consenting participants and only after the window has ended.</div></form>{% endif %}
+  </div></div></div>
+  <div class="col-lg-6">
+    {% if m.calculation_detail %}<div class="panel mb-3"><div class="panel-head">How the system calculated it</div><div class="panel-body small">{{ m.calculation_detail }}</div></div>{% endif %}
+    <div class="panel"><div class="panel-head">History (never overwritten)</div><div class="table-responsive"><table class="table mb-0 small">
+      <thead><tr><th>When</th><th>Change</th><th>Reason</th></tr></thead><tbody>
+      {% for r in revisions %}<tr><td class="text-nowrap">{{ r.changed_at|date:"d M Y H:i" }}</td><td>{{ r.old_status|default:"planned" }} {% if r.old_value is not None %}({{ r.old_value|floatformat:"-2" }}){% endif %} &rarr; {{ r.new_status }}{% if r.new_value is not None %} ({{ r.new_value|floatformat:"-2" }}){% endif %}</td><td>{{ r.reason|default:"-" }}</td></tr>
+      {% empty %}<tr><td colspan="3" class="text-secondary text-center py-3">Nothing recorded yet.</td></tr>{% endfor %}
+    </tbody></table></div></div>
+  </div>
+</div>
+{% endblock %}

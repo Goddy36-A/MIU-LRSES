@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ study.title }}{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+  <div><h1 class="page-title">{{ study.title }}</h1>
+    <p class="page-sub">{{ study.get_status_display }}{% if study.is_active %} · <span class="badge text-bg-success">Active study</span>{% endif %}</p></div>
+  <div class="d-flex gap-2 align-items-start"><a class="btn btn-outline-primary" href="{% url 'research:study_edit' study.pk %}">Edit settings</a>
+    <a class="btn btn-link" href="{% url 'research:study_list' %}">All studies</a></div>
+</div>
+<div class="pending-note mb-3" role="note">Planning figures below come from the research proposal and are editable settings. They are not evidence of recruitment or participation.
+  Ethical approval status is recorded here only as entered by a person: <strong>{{ study.get_ethics_status_display }}</strong>{% if study.ethics_reference %} ({{ study.ethics_reference }}){% endif %}. This software does not grant or imply approval.</div>
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ overview.enrolled }}<span class="fs-6 text-secondary"> / {{ overview.target_sample }}</span></div><div class="stat-label">Enrolled (target sample)</div></div></div>
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ overview.intervention }}<span class="fs-6 text-secondary"> / {{ overview.target_intervention }}</span></div><div class="stat-label">Intervention group (target)</div></div></div>
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ overview.control }}<span class="fs-6 text-secondary"> / {{ overview.target_control }}</span></div><div class="stat-label">Control group (target)</div></div></div>
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ overview.withdrawn }}</div><div class="stat-label">Withdrawn</div></div></div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-6"><div class="panel h-100"><div class="panel-head">Protocol settings</div><div class="panel-body"><dl class="row mb-0">
+    <dt class="col-6">Study population (planning)</dt><dd class="col-6">{{ study.population_size }}</dd>
+    <dt class="col-6">Proposed sample</dt><dd class="col-6">{{ study.target_sample_size }}</dd>
+    <dt class="col-6">Intervention / control targets</dt><dd class="col-6">{{ study.target_intervention }} / {{ study.target_control }}</dd>
+    <dt class="col-6">Intervention length</dt><dd class="col-6">{{ study.intervention_weeks }} weeks</dd>
+    <dt class="col-6">Eligible years of study</dt><dd class="col-6">{{ study.eligible_year_min }} to {{ study.eligible_year_max }}</dd>
+    <dt class="col-6">Significance level</dt><dd class="col-6">{{ study.significance_level }}</dd>
+  </dl></div></div></div>
+  <div class="col-lg-6"><div class="panel h-100"><div class="panel-head">Measurement windows</div><div class="panel-body"><dl class="row mb-0">
+    <dt class="col-5">Baseline</dt><dd class="col-7">{% if baseline_window %}{{ baseline_window.0|date:"d M Y" }} to {{ baseline_window.1|date:"d M Y" }}{% else %}<span class="text-secondary">Not set</span>{% endif %}</dd>
+    <dt class="col-5">Intervention start</dt><dd class="col-7">{% if study.intervention_start %}{{ study.intervention_start|date:"d M Y" }}{% else %}<span class="text-secondary">Not set (the intervention is not assumed to have started)</span>{% endif %}</dd>
+    <dt class="col-5">Post-intervention</dt><dd class="col-7">{% if post_window %}{{ post_window.0|date:"d M Y" }} to {{ post_window.1|date:"d M Y" }}{% if not study.intervention_end %} <span class="text-secondary">(planned end)</span>{% endif %}{% else %}<span class="text-secondary">Not set</span>{% endif %}</dd>
+  </dl></div></div></div>
+  {% if is_researcher %}
+  <div class="col-12"><div class="panel"><div class="panel-head">Measurement actions</div><div class="panel-body d-flex flex-wrap gap-2 align-items-center">
+    <form method="post" action="{% url 'research:study_plan' study.pk %}">{% csrf_token %}<button class="btn btn-outline-primary" type="submit">Plan measurements</button></form>
+    <form method="post" action="{% url 'research:study_calculate' study.pk %}">{% csrf_token %}<button class="btn btn-outline-primary" type="submit">Calculate system outcomes</button></form>
+    <span class="small text-secondary">Planning creates empty "planned" rows for enrolled participants. Calculation only fills rows whose window has ended, from existing attendance, submission, marks and reminder records.</span>
+  </div></div></div>
+  {% else %}
+  <div class="col-12"><div class="panel panel-body text-secondary small">Administrators can configure the study settings. Individual participant records, allocations and measurements are visible to researchers only.</div></div>
+  {% endif %}
+  {% if study.description %}<div class="col-12"><div class="panel"><div class="panel-head">Description</div><div class="panel-body">{{ study.description|linebreaksbr }}</div></div></div>{% endif %}
+</div>
+{% endblock %}

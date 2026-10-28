@@ -3,6 +3,7 @@
 See README.md, section "Security limitations", before any public deployment.
 """
 import os
+import sys
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,6 +29,7 @@ INSTALLED_APPS = [
     "apps.reminders",
     "apps.attendance",
     "apps.performance",
+    "apps.research",
 ]
 
 MIDDLEWARE = [
@@ -114,3 +116,8 @@ if not DEBUG:  # pragma: no cover - production hardening switches
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000
+
+# Tests only: PBKDF2 with fewer iterations keeps the automated test run short (same hash format).
+# Never used when running the server.
+if "test" in sys.argv:
+    PASSWORD_HASHERS = ["miu_lrses.test_hashers.FastPBKDF2PasswordHasher"]

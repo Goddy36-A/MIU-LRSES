@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Data completeness{% endblock %}
+{% block content %}
+<h1 class="page-title">Data completeness</h1>
+<p class="page-sub mb-3">{{ study.title }}. Counts of enrolled participants by measurement state. Nothing is estimated or filled in.</p>
+<div class="panel"><div class="table-responsive"><table class="table mb-0 align-middle">
+  <thead><tr><th>Outcome</th><th>Period</th><th>Group</th><th>Participants</th><th>Collected</th><th>Planned</th><th>Not yet collected</th><th>Missing</th><th>Not applicable</th><th>Withdrawn</th><th>No row</th><th>Completeness</th></tr></thead><tbody>
+  {% for r in rows %}<tr><td>{{ r.outcome.name }}</td><td>{{ r.period }}</td><td>{{ r.group }}</td><td>{{ r.total }}</td>
+    <td>{{ r.counts.collected }}</td><td>{{ r.counts.planned }}</td><td>{{ r.counts.not_yet_collected }}</td><td>{{ r.counts.missing }}</td><td>{{ r.counts.not_applicable }}</td><td>{{ r.counts.withdrawn }}</td><td>{{ r.counts.no_row }}</td>
+    <td class="fw-semibold">{% if r.completeness is None %}<span class="text-secondary">n/a</span>{% else %}{{ r.completeness }}%{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="12" class="text-secondary text-center py-4">No enrolled participants yet, so there is nothing to assess.</td></tr>{% endfor %}
+</tbody></table></div></div>
+<div class="small text-secondary mt-3">
+  <strong>Definitions.</strong> Planned: expected, not yet collected, window not over. Not yet collected: planned but the measurement window has ended. Missing: could not be collected (reason recorded).
+  Withdrawn: participant withdrew before collection (excluded from the completeness percentage). No row: the measurement has not been planned yet (use Plan measurements).
+  Completeness = collected / (participants - withdrawn).
+</div>
+{% endblock %}

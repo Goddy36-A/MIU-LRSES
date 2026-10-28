@@ -6,7 +6,7 @@
 | 2 | Academic management: programmes, courses, years, semesters, profiles, offerings, enrolment, venues, lectures, conflict checks | Done |
 | 3 | Reminders: intervals, scheduling, in-app notifications, `process_reminders`, reschedule/cancel handling | Done (Windows Task Scheduler steps unverified) |
 | 4 | Attendance and performance: attendance with audit trail, assignments, submissions, assessments, marks, reports | Done |
-| 5 | Research study | Not started |
+| 5 | Research study: participants, consent, allocation records, baseline/post measurements, control-group reminder exclusion | Done |
 | 6 | Questionnaires | Not started |
 | 7 | Analytics and exports | Not started |
 | 8 | Final verification and documentation | Not started |
@@ -56,3 +56,9 @@
 - Researchers have no access to attendance or marks yet; research-specific access arrives with consent rules in Phase 5.
 - Ambiguities resolved with defaults (please confirm): late counts as attended; excused absences are excluded from the rate;
   attendance can be recorded once a lecture has started; there are no letter grades.
+
+## Phase 5 design decisions
+- App `research`; full description in [RESEARCH.md](RESEARCH.md). Small hooks added elsewhere: windowed item selection in `performance/services.py`,
+  `cancel_pending_reminders_for` in `reminders/services.py`, administrator permissions limited to the study model in `accounts/signals.py`.
+- The test run uses a lower-iteration PBKDF2 hasher (`miu_lrses/test_hashers.py`, only when `test` is in the command) so the suite runs in seconds.
+- Ambiguities resolved with defaults (please confirm): see "Assumptions to confirm" in RESEARCH.md.

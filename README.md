@@ -4,8 +4,7 @@ Django web application supporting the study *"Evaluating the Impact of Lecture R
 Engagement and Academic Performance: A Case Study of Metropolitan International University, Biharwe Division,
 Mbarara City."*
 
-**Status: Phase 4 of 8 (attendance and performance) complete.** Research, questionnaires and analytics are not
-built yet. See `docs/PHASE_STATUS.md`.
+**Status: Phase 5 of 8 (research study) complete.** Questionnaires and analytics are not built yet. See `docs/PHASE_STATUS.md`.
 
 No institutional ethical approval is claimed by this software. No research data or findings are included.
 
@@ -37,7 +36,7 @@ Then open http://127.0.0.1:8000/ and sign in with the account you created.
 ```
 python manage.py test
 ```
-Phases 1-4: 220 tests, all passing in the development sandbox run (Linux, Python 3.12, Django 5.2.18). Not yet run on Windows.
+Phases 1-5: 313 tests, all passing in the development sandbox run (Linux, Python 3.12, Django 5.2.18). Not yet run on Windows.
 
 ## Roles and what each can do now
 | Role | Can do (Phases 1-4) |
@@ -45,7 +44,7 @@ Phases 1-4: 220 tests, all passing in the development sandbox run (Linux, Python
 | System administrator | Everything below: user accounts, audit log, programmes, courses, academic years, semesters, course offerings, student and lecturer registration, enrolment (single and bulk), venues, all lectures (create, edit details, reschedule, cancel), reminder intervals and on/off switch, scheduled-reminder list, processing runs, attendance on any lecture, attendance rules, assignments, assessments, marks, all course reports, Django Admin |
 | Lecturer | View assigned courses and rosters; view, schedule, reschedule and cancel lectures; record and correct attendance; create assignments and assessments; record submissions and marks; view attendance and performance reports - **all only for offerings assigned to them** |
 | Student | View own courses and own timetable (upcoming/past, cancelled lectures marked); receive, read and mark as read their own in-app lecture reminders and schedule-change notices; view own attendance, assignment deadlines and results |
-| Researcher | Placeholder dashboard only (research module arrives in Phase 5) |
+| Researcher | Study settings, outcome definitions, participant registration, eligibility, consent, enrolment, group allocation records, withdrawal, baseline/post-intervention measurements, data completeness (see `docs/RESEARCH.md`). The administrator can edit study settings only, not participant data. |
 
 Roles are exclusive and enforced on the server (403 for the wrong role, 404 for another lecturer's records).
 A researcher does not inherit administrator rights. Only administrators and superusers can open `/django-admin/`.

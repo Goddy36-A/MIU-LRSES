@@ -126,16 +126,27 @@ def student_punctuality(student, *, offering=None, as_of=None, start=None, end=N
     return summary
 
 
-def _items_for(student, offering):
-    """Marked items for one student in one offering as dicts of title, kind, marks, max, percentage, weight."""
+def _items_for(student, offering, *, start=None, end=None):
+    """Marked items for one student in one offering as dicts of title, kind, marks, max, percentage, weight.
+
+    Optional window [start, end) of aware datetimes: assignments are placed by their deadline and assessments by
+    their assessment date (an assessment without a date cannot be placed in a window and is left out)."""
     items = []
-    for s in Submission.objects.filter(student=student, assignment__offering=offering, status=SubmissionStatus.SUBMITTED,
-                                       marks__isnull=False).select_related("assignment"):
+    subs = Submission.objects.filter(student=student, assignment__offering=offering, status=SubmissionStatus.SUBMITTED,
+                                     marks__isnull=False).select_related("assignment")
+    results = AssessmentResult.objects.filter(student=student, assessment__offering=offering, status=ResultStatus.MARKED,
+                                              marks__isnull=False).select_related("assessment")
+    if start is not None:
+        subs = subs.filter(assignment__deadline__gte=start)
+        results = results.filter(assessment__assessment_date__gte=timezone.localtime(start).date())
+    if end is not None:
+        subs = subs.filter(assignment__deadline__lt=end)
+        results = results.filter(assessment__assessment_date__lt=timezone.localtime(end).date())
+    for s in subs:
         a = s.assignment
         items.append({"title": a.title, "kind": "Assignment", "marks": s.marks, "max": a.max_marks,
                       "percentage": pct(s.marks, a.max_marks), "weight": a.weight_percent})
-    for r in AssessmentResult.objects.filter(student=student, assessment__offering=offering, status=ResultStatus.MARKED,
-                                             marks__isnull=False).select_related("assessment"):
+    for r in results:
         a = r.assessment
         items.append({"title": a.title, "kind": a.get_kind_display(), "marks": r.marks, "max": a.max_marks,
                       "percentage": pct(r.marks, a.max_marks), "weight": a.weight_percent})

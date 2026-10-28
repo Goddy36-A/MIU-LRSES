@@ -44,4 +44,13 @@ All tables are created by Django migrations. Foreign keys to history/records use
 - **Assessment**: offering, title, kind (test/exam/practical/other), assessment_date, max_marks, weight_percent (optional), created_by, created_at.
 - **AssessmentResult**: assessment, student, status (marked / absent "did not sit" / exempt), marks (required only when marked), recorded_by, updated_at. Unique (assessment, student).
 
-Tables for research and questionnaires are added in later phases.
+## research
+- **ResearchStudy**: title, status (set by researcher), is_active (one), ethics_status/reference, population_size, target_sample_size, target_intervention, target_control, intervention_weeks, eligible_year_min/max, baseline_start/end, intervention_start/end, significance_level, notes.
+- **OutcomeDefinition**: study, code (unique per study), name, kind, source (manual/calculated), definition, unit, min/max, applies_to, measured_at, is_active.
+- **Participant**: study, student (1 per study), research_code (unique per study), eligibility, consent_status/date/reference, enrolled_on, group, withdrawn_on/reason/data_handling, notes.
+- **ParticipantEvent**: append-only history of registration, eligibility, consent, enrolment, withdrawal.
+- **Allocation**: append-only; participant, group, method, procedure (required), allocation_date, is_reallocation, reallocation_reason, allocated_by.
+- **Measurement**: participant, outcome, period (baseline/post_intervention), status (planned/collected/missing/not_applicable), value, collected_on, source, calculation_detail, missing_reason. Unique (participant, outcome, period); check: value present only when collected.
+- **MeasurementRevision**: append-only; old/new status and value, reason, changed_by.
+
+Tables for questionnaires are added in Phase 6.

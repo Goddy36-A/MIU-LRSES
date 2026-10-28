@@ -108,6 +108,21 @@ class ResearcherDashboardView(RoleRequiredMixin, TemplateView):
     allowed_roles = (Role.RESEARCHER,)
     template_name = "accounts/dashboard_researcher.html"
 
+    def get_context_data(self, **kwargs):
+        from collections import Counter
+
+        from apps.research import services
+        from apps.research.models import Measurement
+        ctx = super().get_context_data(**kwargs)
+        study = services.get_active_study()
+        ctx["study"] = study
+        if study:
+            ctx["overview"] = services.study_overview(study)
+            rows = Measurement.objects.filter(participant__study=study).select_related("participant", "outcome__study")
+            counts = Counter(services.display_state(m) for m in rows)
+            ctx["measurement_counts"] = {k: counts.get(k, 0) for k in services.STATE_LABELS}
+        return ctx
+
 
 # ---- User management (system administrators only) -------------------------
 

@@ -25,6 +25,10 @@ def _admin_permissions():
     for app_label in ADMIN_ADMIN_APPS:
         for prefix in ("add_", "change_", "view_"):
             perms = perms | Permission.objects.filter(content_type__app_label=app_label, codename__startswith=prefix)
+    # Research: administrators may configure the study protocol settings only. They get no permission on participants,
+    # allocations or measurements, so individual research data stay with the researchers.
+    for prefix in ("add_", "change_", "view_"):
+        perms = perms | Permission.objects.filter(content_type__app_label="research", codename=f"{prefix}researchstudy")
     return perms
 
 

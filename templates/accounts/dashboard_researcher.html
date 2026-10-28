@@ -3,10 +3,36 @@
 {% block content %}
 <h1 class="page-title">Welcome, {{ request.user.display_name }}</h1>
 <p class="page-sub mb-4">Researcher dashboard</p>
-<div class="pending-note mb-4" role="note">This dashboard is a Phase 1 placeholder. The features below are not built yet; nothing here shows real data.</div>
-<div class="panel"><div class="panel-head">Planned for researchers</div><div class="panel-body"><ul class="coming-list">
-<li><span>Study profile, participant registration, consent and group allocation records</span><span class="text-secondary">Phase 5</span></li>
-<li><span>Baseline and post-intervention measurements</span><span class="text-secondary">Phase 5</span></li>
+{% if not study %}
+<div class="pending-note mb-4" role="note">There is no active study yet. <a href="{% url 'research:study_add' %}">Create the study</a> (or mark an existing one as active) to begin. No participants are enrolled automatically.</div>
+{% else %}
+<div class="panel panel-body mb-3 d-flex flex-wrap justify-content-between gap-2 align-items-center">
+  <div><strong>{{ study.title }}</strong><div class="small text-secondary">{{ study.get_status_display }} · Ethics: {{ study.get_ethics_status_display }}</div></div>
+  <a class="btn btn-outline-primary" href="{% url 'research:study_detail' study.pk %}">Study settings</a>
+</div>
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ overview.registered }}</div><div class="stat-label">Registered</div></div></div>
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ overview.enrolled }}<span class="fs-6 text-secondary"> / {{ overview.target_sample }}</span></div><div class="stat-label">Enrolled (target)</div></div></div>
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ overview.intervention }} / {{ overview.control }}</div><div class="stat-label">Intervention / control</div></div></div>
+  <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ overview.withdrawn }}</div><div class="stat-label">Withdrawn</div></div></div>
+</div>
+<div class="row g-3 mb-3">
+  <div class="col-lg-6"><div class="panel h-100"><div class="panel-head">Consent and eligibility</div><div class="panel-body">
+    <span class="me-4"><strong>{{ overview.consent_given }}</strong> consent given</span><span class="me-4"><strong>{{ overview.consent_pending }}</strong> not yet asked</span><span class="me-4"><strong>{{ overview.consent_declined }}</strong> declined</span>
+    <div class="mt-2"><span class="me-4"><strong>{{ overview.eligible }}</strong> eligible</span><span class="me-4"><strong>{{ overview.eligibility_pending }}</strong> not assessed</span><span class="me-4"><strong>{{ overview.ineligible }}</strong> not eligible</span></div>
+    {% if overview.unallocated %}<div class="mt-2 text-secondary small">{{ overview.unallocated }} enrolled participant(s) not yet allocated to a group.</div>{% endif %}
+  </div></div></div>
+  <div class="col-lg-6"><div class="panel h-100"><div class="panel-head">Measurements</div><div class="panel-body">
+    <span class="me-4"><strong>{{ measurement_counts.collected }}</strong> collected</span><span class="me-4"><strong>{{ measurement_counts.planned }}</strong> planned</span>
+    <span class="me-4"><strong>{{ measurement_counts.not_yet_collected }}</strong> overdue</span><span class="me-4"><strong>{{ measurement_counts.missing }}</strong> missing</span>
+    <div class="mt-2"><a href="{% url 'research:completeness' %}">View data completeness</a></div>
+  </div></div></div>
+</div>
+<div class="d-flex flex-wrap gap-2"><a class="btn btn-primary" href="{% url 'research:participant_register' %}">Register a participant</a>
+  <a class="btn btn-outline-primary" href="{% url 'research:participant_list' %}">Participants</a><a class="btn btn-outline-primary" href="{% url 'research:measurement_list' %}">Measurements</a>
+  <a class="btn btn-outline-primary" href="{% url 'research:outcome_list' %}">Outcome definitions</a></div>
+{% endif %}
+<div class="panel mt-4"><div class="panel-head">Coming in later phases</div><div class="panel-body"><ul class="coming-list">
 <li><span>Questionnaires and TAM constructs</span><span class="text-secondary">Phase 6</span></li>
 <li><span>Group analytics, CSV exports and data dictionary</span><span class="text-secondary">Phase 7</span></li>
 </ul></div></div>

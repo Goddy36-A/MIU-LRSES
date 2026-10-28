@@ -21,6 +21,8 @@
   <li><a class="nav-link {% if name == 'overview' or name == 'config_edit' or name == 'interval_add' or name == 'interval_edit' %}{% if ns == 'reminders' %}active{% endif %}{% endif %}" href="{% url 'reminders:overview' %}">Reminder settings</a></li>
   <li><a class="nav-link {% if ns == 'reminders' and name == 'queue' %}active{% endif %}" href="{% url 'reminders:queue' %}">Scheduled reminders</a></li>
   <li><a class="nav-link {% if ns == 'reminders' and name == 'run_list' %}active{% endif %}" href="{% url 'reminders:run_list' %}">Processing runs</a></li>
+  <li class="nav-heading">Research</li>
+  <li><a class="nav-link {% if ns == 'research' %}active{% endif %}" href="{% url 'research:study_list' %}">Study settings</a></li>
   <li class="nav-heading">Administration</li>
   <li><a class="nav-link {% if name == 'user_list' or name == 'user_add' or name == 'user_edit' %}active{% endif %}" href="{% url 'accounts:user_list' %}">User accounts</a></li>
   <li><a class="nav-link {% if name == 'audit_list' %}active{% endif %}" href="{% url 'accounts:audit_list' %}">Audit log</a></li>
@@ -41,5 +43,13 @@
   <li><a class="nav-link {% if name == 'notifications' %}active{% endif %}" href="{% url 'reminders:notifications' %}">Notifications{% if unread_notifications %} <span class="badge text-bg-warning ms-1" data-unread-badge>{{ unread_notifications }}</span>{% endif %}</a></li>
 {% elif request.user.is_researcher %}
   <li><a class="nav-link {% if name == 'dashboard_researcher' %}active{% endif %}" href="{% url 'accounts:dashboard_researcher' %}">Dashboard</a></li>
+  <li class="nav-heading">Study</li>
+  <li><a class="nav-link {% if ns == 'research' and name|slice:':5' == 'study' %}active{% endif %}" href="{% url 'research:study_list' %}">Study settings</a></li>
+  <li><a class="nav-link {% if ns == 'research' and name|slice:':7' == 'outcome' %}active{% endif %}" href="{% url 'research:outcome_list' %}">Outcome definitions</a></li>
+  <li class="nav-heading">Participants</li>
+  <li><a class="nav-link {% if ns == 'research' and name|slice:':11' == 'participant' %}active{% endif %}" href="{% url 'research:participant_list' %}">Participants</a></li>
+  <li class="nav-heading">Data</li>
+  <li><a class="nav-link {% if ns == 'research' and name|slice:':11' == 'measurement' %}active{% endif %}" href="{% url 'research:measurement_list' %}">Measurements</a></li>
+  <li><a class="nav-link {% if ns == 'research' and name == 'completeness' %}active{% endif %}" href="{% url 'research:completeness' %}">Data completeness</a></li>
 {% endif %}
 {% endwith %}
