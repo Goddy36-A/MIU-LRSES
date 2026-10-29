@@ -5,7 +5,6 @@
   <div><h1 class="page-title">Report: {{ q.title }}</h1><p class="page-sub">Descriptive summaries of submitted responses. No statistical tests are applied here, and no conclusion follows from these numbers alone.</p></div>
   <a class="btn btn-outline-primary align-self-start" href="{% url 'questionnaires:detail' q.pk %}">Back to questionnaire</a>
 </div>
-{% if q.is_example %}<div class="pending-note mb-3" role="note">This questionnaire contains unapproved example items.</div>{% endif %}
 <div class="row g-3 mb-3">
   <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ completeness.assigned }}</div><div class="stat-label">Assigned</div></div></div>
   <div class="col-6 col-lg-3"><div class="panel stat"><div class="stat-value">{{ completeness.submitted }}</div><div class="stat-label">Submitted</div></div></div>

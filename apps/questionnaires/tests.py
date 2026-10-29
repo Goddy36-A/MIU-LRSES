@@ -1,6 +1,6 @@
 """Phase 6 tests: questionnaires, TAM constructs, assignment, student answering, completeness and reports, permissions.
 
-All data below is synthetic test fixture data. Nothing here is a research finding.
+Test fixtures only. Nothing here is a research finding.
 """
 from django.contrib.auth.models import Group as AuthGroup
 from django.core.exceptions import ValidationError
@@ -28,7 +28,7 @@ class QFixtureMixin(ResearchFixtureMixin):
 
     def build(self, *, open_=True, approve=True, extra=True):
         """Draft questionnaire with 2 PU items (one reverse scored), 1 PEOU, 1 choice, 1 optional text."""
-        q = Questionnaire.objects.create(study=self.study, title="Synthetic TAM", created_by=self.researcher)
+        q = Questionnaire.objects.create(study=self.study, title="TAM test questionnaire", created_by=self.researcher)
         specs = [("PU", "PU item one", False), ("PU", "PU item two (negative)", True), ("PEOU", "PEOU item", False)]
         self.items = []
         for i, (c, t, rev) in enumerate(specs, start=1):
@@ -54,26 +54,21 @@ class QFixtureMixin(ResearchFixtureMixin):
 
 # ---- Building and approval --------------------------------------------------------------------------------------------------
 class BuildingTests(QFixtureMixin, TestCase):
-    def test_example_tam_is_labelled_unapproved_and_covers_the_three_constructs(self):
-        q = services.create_example_tam(self.study, self.researcher)
-        self.assertTrue(q.is_example)
+    def test_a_questionnaire_cannot_be_opened_until_a_researcher_approves_the_items(self):
+        q = self.build(open_=False, approve=False)
         self.assertFalse(q.items_approved)
-        self.assertEqual(q.status, QuestionnaireStatus.DRAFT)
-        self.assertIn("EXAMPLE", q.title)
-        likert = q.questions.filter(qtype="likert")
-        self.assertEqual({c: likert.filter(construct=c).count() for c in ("PU", "PEOU", "BI")}, {"PU": 3, "PEOU": 3, "BI": 3})
-        self.assertEqual(q.questions.filter(qtype="text", required=False).count(), 1)
-
-    def test_example_cannot_be_opened_until_a_researcher_approves_it(self):
-        q = services.create_example_tam(self.study, self.researcher)
         with self.assertRaises(ValidationError) as ctx:
             services.open_questionnaire(q, self.researcher)
-        self.assertIn("example", " ".join(ctx.exception.messages).lower())
+        self.assertIn("approve the items", " ".join(ctx.exception.messages))
         services.approve_items(q, self.researcher)
         q.refresh_from_db()
-        self.assertTrue(q.items_approved and not q.is_example)
+        self.assertTrue(q.items_approved)
         self.assertEqual(q.approved_by, self.researcher)
         services.open_questionnaire(q, self.researcher)
+
+    def test_no_questionnaire_content_ships_with_the_system(self):
+        self.assertEqual(Questionnaire.objects.count(), 0)
+        self.assertEqual(Question.objects.count(), 0)
 
     def test_cannot_open_without_questions_or_with_a_one_option_choice(self):
         q = Questionnaire.objects.create(study=self.study, title="Empty")
@@ -378,7 +373,7 @@ class PermissionTests(QFixtureMixin, TestCase):
     def test_state_changing_posts_are_researcher_only(self):
         for user in (self.admin, self.lec_user, self.stu_user):
             self.client.login(username=user.username, password=PW)
-            for name, args in [("action", [self.q.pk, "close"]), ("example_tam", []), ("question_delete", [self.q.pk, self.items[0].pk])]:
+            for name, args in [("action", [self.q.pk, "close"]), ("question_delete", [self.q.pk, self.items[0].pk])]:
                 self.assertEqual(self.client.post(reverse(f"questionnaires:{name}", args=args)).status_code, 403, (user.role, name))
             self.client.logout()
         self.q.refresh_from_db()
@@ -492,17 +487,6 @@ class WorkflowTests(QFixtureMixin, TestCase):
         self.assertEqual(Response.objects.get().status, ResponseStatus.DRAFT)
         r = self.client.get(reverse("questionnaires:fill", args=[a.pk]))
         self.assertRegex(r.content.decode(), r'name="q%d" value="3" id="[^"]+" checked' % self.items[0].pk)
-
-    def test_example_button_creates_unapproved_example_only(self):
-        self.client.login(username=self.researcher.username, password=PW)
-        r = self.client.post(reverse("questionnaires:example_tam"), follow=True)
-        q = Questionnaire.objects.get()
-        self.assertEqual((q.is_example, q.items_approved), (True, False))
-        self.assertContains(r, "NOT approved")
-        r = self.client.post(reverse("questionnaires:action", args=[q.pk, "open"]), follow=True)
-        self.assertContains(r, "approve the items first")
-        q.refresh_from_db()
-        self.assertEqual(q.status, "draft")
 
     def test_editing_an_opened_questionnaire_through_the_page_is_refused(self):
         q = self.build()

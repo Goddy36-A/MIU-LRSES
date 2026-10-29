@@ -54,7 +54,7 @@ All tables are created by Django migrations. Foreign keys to history/records use
 - **MeasurementRevision**: append-only; old/new status and value, reason, changed_by.
 
 ## questionnaires
-- **Questionnaire**: study, title, instructions, research_question, period (blank/baseline/post_intervention), status (draft/open/closed), is_example, items_approved/approved_by/approved_at, opened_at, closed_at, created_by.
+- **Questionnaire**: study, title, instructions, research_question, period (blank/baseline/post_intervention), status (draft/open/closed), items_approved/approved_by/approved_at, opened_at, closed_at, created_by.
 - **Question**: questionnaire, order, text, qtype (likert/choice/text), construct (PU/PEOU/BI or blank), required, reverse_scored.
 - **Option**: question, order, label (multiple choice only).
 - **Assignment**: questionnaire, participant (-> research.Participant), due_date, assigned_by, assigned_at. Unique (questionnaire, participant).

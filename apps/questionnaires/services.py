@@ -1,8 +1,8 @@
 """Questionnaire business logic. Views only call these functions.
 
 Rules (documented in docs/QUESTIONNAIRES.md):
-* Researchers write the items. The only built-in content is an *example* TAM questionnaire, labelled unapproved,
-  which cannot be opened until a researcher has reviewed and approved the items.
+* Researchers write every item. The system ships with no pre-written questionnaire content; a questionnaire cannot be
+  opened until a researcher has reviewed and approved its items.
 * Items can only be edited while the questionnaire is a draft; any edit withdraws the researcher's approval.
   To change an opened questionnaire, duplicate it (responses to the original are never altered).
 * Questionnaires are assigned only to enrolled, consenting, non-withdrawn participants, and only by explicit action.
@@ -27,38 +27,6 @@ from apps.research.services import enrolled_participants
 
 from .models import (Answer, Assignment, Construct, LIKERT_CHOICES, MAX_TEXT_LENGTH, Option, Question, QuestionType,
                      Questionnaire, QuestionnaireStatus, Response, ResponseStatus, TAM_CONSTRUCTS)
-
-# ---- Example content ---------------------------------------------------------------------------------------------------
-EXAMPLE_TITLE = "EXAMPLE (not approved): Technology acceptance of the lecture reminder system"
-EXAMPLE_ITEMS = [
-    ("PU", "Receiving lecture reminders helps me keep track of my lectures."),
-    ("PU", "The lecture reminders make me more likely to attend my lectures."),
-    ("PU", "The lecture reminders help me stay on top of my coursework."),
-    ("PEOU", "Learning to use the lecture reminder system was easy for me."),
-    ("PEOU", "The reminder notifications are clear and easy to understand."),
-    ("PEOU", "It is easy for me to find the notifications I need."),
-    ("BI", "I intend to keep using the lecture reminders if they remain available."),
-    ("BI", "I would recommend the lecture reminders to other students."),
-    ("BI", "I would like lecture reminders to be available for all of my courses."),
-]
-
-
-@transaction.atomic
-def create_example_tam(study, user):
-    """Create an editable EXAMPLE questionnaire with three Likert items for each TAM construct. These items were written
-    as a starting point only: they are not an approved or validated instrument and must be reviewed by a researcher."""
-    q = Questionnaire.objects.create(
-        study=study, title=EXAMPLE_TITLE, is_example=True, created_by=user, period="post_intervention",
-        research_question="Example only. Replace with the study's approved research question.",
-        instructions="Example only: these items need researcher review and approval before use.\n"
-                     "Please rate how much you agree with each statement. Do not write your name in any comment box.")
-    for i, (construct, text) in enumerate(EXAMPLE_ITEMS, start=1):
-        Question.objects.create(questionnaire=q, order=i, text=text, qtype=QuestionType.LIKERT, construct=construct)
-    Question.objects.create(questionnaire=q, order=len(EXAMPLE_ITEMS) + 1, text="Any other comments about the lecture reminders? (optional; do not write your name)",
-                            qtype=QuestionType.TEXT, required=False)
-    log_action("questionnaire_example_created", actor=user, target=q.title)
-    return q
-
 
 # ---- Building ----------------------------------------------------------------------------------------------------------------
 def _require_draft(q):
@@ -108,7 +76,7 @@ def approve_items(q, user):
     _require_draft(q)
     if not q.questions.exists():
         raise ValidationError("Add at least one question before approving.")
-    q.items_approved, q.is_example, q.approved_by, q.approved_at = True, False, user, timezone.now()
+    q.items_approved, q.approved_by, q.approved_at = True, user, timezone.now()
     q.save()
     log_action("questionnaire_items_approved", actor=user, target=q.title)
 
@@ -116,7 +84,7 @@ def approve_items(q, user):
 def validate_ready_to_open(q):
     problems = []
     if not q.items_approved:
-        problems.append("A researcher must review and approve the items first." + (" This is still example content." if q.is_example else ""))
+        problems.append("A researcher must review and approve the items first.")
     questions = list(q.questions.prefetch_related("options"))
     if not questions:
         problems.append("The questionnaire has no questions.")
@@ -152,7 +120,7 @@ def duplicate_questionnaire(q, user):
     """Copy items into a new draft (no assignments, no responses, approval withdrawn)."""
     copy = Questionnaire.objects.create(
         study=q.study, title=f"Copy of {q.title}"[:200], instructions=q.instructions, research_question=q.research_question,
-        period=q.period, is_example=q.is_example, created_by=user)
+        period=q.period, created_by=user)
     for question in q.questions.prefetch_related("options"):
         new = Question.objects.create(questionnaire=copy, order=question.order, text=question.text, qtype=question.qtype,
                                       construct=question.construct, required=question.required, reverse_scored=question.reverse_scored)

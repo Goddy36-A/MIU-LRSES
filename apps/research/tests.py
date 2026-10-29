@@ -1,7 +1,7 @@
 """Phase 5 tests: research study settings, participants, consent, allocation, control-group reminder exclusion,
 measurements, calculations from system records, permissions and data integrity.
 
-All data below is synthetic test fixture data. Nothing here is a research finding.
+Test fixtures only. Nothing here is a research finding.
 Dates are relative to today so the suite never depends on the calendar.
 """
 from datetime import timedelta
@@ -42,7 +42,7 @@ class ResearchFixtureMixin(AttendanceFixtureMixin):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.study = ResearchStudy.objects.create(
-            title="Synthetic test study", is_active=True, status=StudyStatus.RECRUITING,
+            title="Test study", is_active=True, status=StudyStatus.RECRUITING,
             baseline_start=days(-60), baseline_end=days(-31), intervention_start=days(-30), intervention_weeks=2)
         services.ensure_default_outcomes(cls.study)
         cls.attendance_outcome = cls.study.outcomes.get(code="attendance-rate")
@@ -54,13 +54,13 @@ class ResearchFixtureMixin(AttendanceFixtureMixin):
         return services.register_participant(self.study, student, self.researcher, **kw)
 
     def enrol(self, student, group=""):
-        """Register, make eligible, record consent and enrol; optionally allocate (synthetic fixture shortcut)."""
+        """Register, make eligible, record consent and enrol; optionally allocate (fixture shortcut)."""
         p = self.register(student, eligibility=Eligibility.ELIGIBLE)
         p.consent_status, p.consent_date, p.enrolled_on = ConsentStatus.GIVEN, days(-65), days(-64)
         p.save()
         if group:
             services.allocate_participant(p, self.researcher, group=group, method=AllocationMethod.MANUAL,
-                                          procedure="Synthetic test allocation.")
+                                          procedure="Test allocation.")
         return Participant.objects.get(pk=p.pk)
 
 

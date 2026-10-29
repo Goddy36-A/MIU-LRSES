@@ -11,7 +11,6 @@
     <a class="btn btn-outline-primary" href="{% url 'questionnaires:report' q.pk %}">Report</a>
   </div>
 </div>
-{% if q.is_example %}<div class="pending-note mb-3" role="note"><strong>Example content.</strong> These items were written as a starting point only. They are not an approved or validated instrument. Review and edit them, then approve, before use.</div>{% endif %}
 <div class="row g-3 mb-3">
   <div class="col-lg-7"><div class="panel h-100"><div class="panel-head">Instructions and research question</div><div class="panel-body">
     <p>{{ q.instructions|default:"No instructions."|linebreaksbr }}</p>

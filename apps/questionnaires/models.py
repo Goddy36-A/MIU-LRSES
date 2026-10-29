@@ -1,7 +1,6 @@
 """Questionnaire models (Phase 6): questionnaires, items, assignment to participants, responses and answers.
 
-Researchers write every item. The only pre-written content is an *example* Technology Acceptance Model
-questionnaire that is clearly labelled as an unapproved example until a researcher reviews and approves it.
+Researchers write every item. The system contains no pre-written questionnaire content.
 """
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -45,7 +44,6 @@ class Questionnaire(models.Model):
                                                                   ("post_intervention", "Post-intervention")],
                               help_text="Which measurement period the responses belong to.")
     status = models.CharField(max_length=8, choices=QuestionnaireStatus.choices, default=QuestionnaireStatus.DRAFT)
-    is_example = models.BooleanField(default=False, help_text="Example content that has not been reviewed by a researcher.")
     items_approved = models.BooleanField(default=False, help_text="A researcher has reviewed the items and approved them for use.")
     approved_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
     approved_at = models.DateTimeField(null=True, blank=True)

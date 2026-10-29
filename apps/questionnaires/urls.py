@@ -7,7 +7,6 @@ app_name = "questionnaires"
 urlpatterns = [
     path("", v.QuestionnaireList.as_view(), name="list"),
     path("add/", v.QuestionnaireSave.as_view(), name="add"),
-    path("example-tam/", v.ExampleTam.as_view(), name="example_tam"),
     path("<int:pk>/", v.QuestionnaireDetail.as_view(), name="detail"),
     path("<int:pk>/edit/", v.QuestionnaireSave.as_view(), name="edit"),
     path("<int:pk>/do/<str:action>/", v.QuestionnaireAction.as_view(), name="action"),

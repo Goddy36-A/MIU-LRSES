@@ -1,5 +1,5 @@
 """Phase 4 tests: attendance recording, corrections, rate calculations, permissions.
-All data below is synthetic test fixture data."""
+Test fixtures only: none of this data represents real people or records."""
 from datetime import timedelta
 
 from django.core.exceptions import ValidationError

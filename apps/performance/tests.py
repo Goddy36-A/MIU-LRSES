@@ -1,5 +1,5 @@
 """Phase 4 tests: assignments, submissions, punctuality, assessments, marks, permissions.
-All data below is synthetic test fixture data; none of it represents real students or marks."""
+Test fixtures only; none of it represents real students or marks."""
 from datetime import timedelta
 from decimal import Decimal
 

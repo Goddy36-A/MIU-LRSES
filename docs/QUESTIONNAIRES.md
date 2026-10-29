@@ -1,9 +1,7 @@
 # Questionnaires and TAM (Phase 6)
 
-App `questionnaires`. Researchers write every item. The only built-in content is an **example** Technology Acceptance Model
-questionnaire (3 Likert items each for PU, PEOU and BI, plus one optional comment box). It is created only when a researcher clicks
-*Add example TAM questionnaire*, is labelled `EXAMPLE (not approved)`, and **cannot be opened until a researcher has reviewed and
-approved the items**. These items are not a validated instrument. "Approve" means the researcher reviewed the items; it is not ethical approval.
+App `questionnaires`. Researchers write every item. The system ships with **no pre-written questionnaire content**: a questionnaire
+cannot be opened until a researcher has reviewed and approved its items. "Approve" means the researcher reviewed the items; it is not ethical approval.
 
 ## Who can do what
 | Role | Access |

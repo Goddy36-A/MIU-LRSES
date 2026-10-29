@@ -1,6 +1,6 @@
 """Phase 1 tests: authentication, roles, access control, user management, audit.
 
-All accounts below are synthetic test fixtures, not real people.
+All accounts below are test fixtures, not real people.
 """
 from django.contrib.auth.models import Group
 from django.core.management import call_command

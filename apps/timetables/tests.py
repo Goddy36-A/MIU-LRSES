@@ -1,5 +1,5 @@
 """Phase 2 tests: venues, lecture scheduling, conflicts, rescheduling, cancelling, timetables.
-All data below is synthetic test fixture data."""
+Test fixtures only."""
 from datetime import datetime, timedelta
 
 from django.core.exceptions import ValidationError

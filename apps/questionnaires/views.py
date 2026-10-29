@@ -31,7 +31,7 @@ class QuestionnaireList(QuestionnaireMixin, CrudListView):
     allowed_roles = RESEARCHER_ONLY
     model = Questionnaire
     title = "Questionnaires"
-    subtitle = "Items are written by researchers. The example TAM questionnaire is a starting point and needs review and approval."
+    subtitle = "Items are written by researchers and must be reviewed and approved before a questionnaire can be opened."
     columns = [("Title", "title"), ("Status", "get_status_display"), ("Period", lambda q: q.get_period_display() or "-"),
                ("Items approved", "items_approved"), ("Questions", lambda q: q.questions.count()), ("Assigned", lambda q: q.assignments.count())]
     search_fields = ("title",)
@@ -125,13 +125,6 @@ class QuestionnaireAction(QuestionnaireMixin, View):
             for m in exc.messages:
                 messages.error(request, m)
         return redirect("questionnaires:detail", pk=pk)
-
-
-class ExampleTam(ActiveStudyMixin, View):
-    def post(self, request):
-        q = services.create_example_tam(self.study, request.user)
-        messages.warning(request, "Example items added. They are NOT approved: review and edit them, then approve, before use.")
-        return redirect("questionnaires:detail", pk=q.pk)
 
 
 class QuestionSave(QuestionnaireMixin, View):

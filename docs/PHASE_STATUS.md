@@ -9,7 +9,7 @@
 | 5 | Research study: participants, consent, allocation records, baseline/post measurements, control-group reminder exclusion | Done |
 | 6 | Questionnaires: TAM constructs, Likert/choice/text items, assignment, student answering, completeness and descriptive reports | Done |
 | 7 | Analytics and exports | Not started |
-| 8 | Final verification and documentation | In progress: route/menu checks, demo data, guides and checklist done for Phases 1-6; analytics/export docs wait for Phase 7 |
+| 8 | Final verification and documentation | In progress: route/menu checks, user guides and verification checklist done for Phases 1-6; analytics/export docs wait for Phase 7 |
 
 ## Phase 1 design decisions / assumptions
 - One primary role per user (`User.role`), exclusive; roles are not stacked.
@@ -69,5 +69,13 @@
 - Ambiguities resolved with defaults (please confirm): see "Assumptions to confirm" in QUESTIONNAIRES.md.
 
 ## Phase 8 - one-click local setup
-- `start.bat` / `setup.bat` / `run_tests.bat` (Windows) and `start.sh` (macOS/Linux) wrap `setup_local.py` (venv, packages, migrations, administrator account with password validation, optional synthetic demo data) and `run_server.py` (migrations, free-port check, browser, background reminder processing every 60 s while the window is open).
+- `start.bat` / `setup.bat` / `run_tests.bat` (Windows) and `start.sh` (macOS/Linux) wrap `setup_local.py` (venv, packages, migrations, administrator account with password validation) and `run_server.py` (migrations, free-port check, browser, background reminder processing every 60 s while the window is open).
 - Tested on Linux only; the `.bat` wrappers are untested on Windows. The background reminder loop is a localhost convenience, not a replacement for Task Scheduler.
+
+## Content policy (supervisor requirement)
+- The system ships with no pre-loaded records and no pre-written questionnaire content, and no command creates any. All records are entered by authorised users.
+- Removed the built-in starter questionnaire feature (service, view, URL and its database flag) and its tests. Migration `questionnaires/0002_remove_starter_content_flag`
+  also deletes any never-used starter drafts left in an existing database; a researcher's own questionnaires are never touched.
+- Automated tests build their own temporary records in a throw-away test database; nothing from them reaches the real database.
+- Configuration that is kept on purpose: the three default reminder intervals (24 h, 1 h, 15 min), the four standard outcome definitions created with a new study
+  (editable), and the research proposal's planning figures as editable study defaults.

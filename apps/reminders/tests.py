@@ -1,5 +1,5 @@
 """Phase 3 tests: reminder scheduling, duplicate prevention, reschedule/cancel handling, processing,
-notification access and the management command. All data is synthetic fixture data.
+notification access and the management command. Test fixtures only.
 
 The clock is frozen with ``frozen(...)`` so results never depend on today's date.
 NOW is Mon 2 Nov 2026 08:00 (Africa/Kampala); the default test lecture starts Tue 3 Nov 09:00, i.e. 25 hours later.

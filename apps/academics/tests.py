@@ -1,4 +1,4 @@
-"""Phase 2 tests: academic records. All data below is synthetic test fixture data."""
+"""Phase 2 tests: academic records. Test fixtures only."""
 from datetime import date
 
 from django.core.exceptions import ValidationError

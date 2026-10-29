@@ -19,7 +19,7 @@ class _ReadOnly(admin.ModelAdmin):
 
 @admin.register(models.Questionnaire)
 class QuestionnaireAdmin(_ReadOnly):
-    list_display = ("title", "status", "items_approved", "is_example")
+    list_display = ("title", "status", "items_approved")
 
 
 @admin.register(models.Question)
