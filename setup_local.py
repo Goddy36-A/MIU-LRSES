@@ -124,6 +124,10 @@ def main():
         manage("migrate", "--noinput")  # show the real error
         fail("Database setup failed (see the message above).")
     say("Database ready.")
+    if manage("load_institution_data", stdout=subprocess.DEVNULL).returncode == 0:
+        say("University programmes and the research study profile are loaded.")
+    else:
+        say("Note: the university programmes could not be loaded automatically. You can add them later with: python manage.py load_institution_data")
 
     step(5, "Administrator account")
     admin_name = None
