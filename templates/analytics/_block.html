@@ -1,0 +1,27 @@
+{# One statistical comparison. Context: block, alpha. Never says an effect is proven. #}
+<div class="panel mb-3"><div class="panel-head">{{ block.title }}</div><div class="panel-body">
+  {% if block.description %}<p class="small text-secondary mb-2">{{ block.description }}</p>{% endif %}
+  <div class="table-responsive"><table class="table table-sm mb-2 align-middle">
+    <thead><tr><th>Group</th><th>Expected</th><th>With data (n)</th><th>Missing</th>
+      {% if block.kind == 'paired' %}<th>Baseline mean</th><th>Post mean</th><th>Mean change (SD)</th>{% else %}<th>Mean (SD)</th><th>Median</th><th>Min to max</th><th>{{ block.ci_level }} CI of mean</th>{% endif %}</tr></thead>
+    <tbody>{% for g in block.groups %}<tr><td>{{ g.label }}</td><td>{{ g.enrolled }}</td><td>{{ g.n }}</td><td>{{ g.missing }}</td>
+      {% if block.kind == 'paired' %}<td>{{ g.baseline.mean|default_if_none:"-" }}</td><td>{{ g.post.mean|default_if_none:"-" }}</td>
+        <td>{{ g.summary.mean|default_if_none:"-" }}{% if g.summary.sd is not None %} ({{ g.summary.sd }}){% endif %}</td>
+      {% else %}<td>{{ g.summary.mean|default_if_none:"-" }}{% if g.summary.sd is not None %} ({{ g.summary.sd }}){% endif %}</td><td>{{ g.summary.median|default_if_none:"-" }}</td>
+        <td>{% if g.summary.n %}{{ g.summary.min }} to {{ g.summary.max }}{% else %}-{% endif %}</td>
+        <td>{% if g.summary.ci_low is not None %}{{ g.summary.ci_low }} to {{ g.summary.ci_high }}{% else %}-{% endif %}</td>{% endif %}</tr>{% endfor %}</tbody></table></div>
+  <div class="small text-secondary mb-2">Unit: {{ block.unit }}. "Missing" = expected but no collected value (planned, missing, not applicable or not yet entered); missing values are left out, never treated as zero.</div>
+  {% if not block.available %}
+    <div class="pending-note" role="note">{{ block.message }}</div>
+  {% elif block.kind != 'descriptive' %}
+    <div class="row g-3">
+      <div class="col-lg-6"><div class="border rounded p-3 h-100"><div class="fw-semibold mb-1">Primary test: {{ block.primary_is }}</div>
+        {% include "analytics/_result.html" with r=block.primary %}</div></div>
+      <div class="col-lg-6"><div class="border rounded p-3 h-100 bg-light"><div class="fw-semibold mb-1">Sensitivity check (other test)</div>
+        {% include "analytics/_result.html" with r=block.secondary %}</div></div>
+    </div>
+    <p class="small mt-2 mb-1"><strong>Why this test:</strong> {{ block.selection }}</p>
+    <p class="small mt-0 mb-1 text-secondary">{{ block.direction }}</p>
+    {% if block.primary.estimable %}<p class="small mt-0 mb-0">The primary test's p-value is {% if block.significant %}below{% else %}not below{% endif %} the study's significance level ({{ block.alpha }}). This is a statistical result about the data, not proof of cause.</p>{% endif %}
+  {% endif %}
+</div></div>

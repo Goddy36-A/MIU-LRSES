@@ -23,6 +23,7 @@
     <dt class="col-6">Intervention length</dt><dd class="col-6">{{ study.intervention_weeks }} weeks</dd>
     <dt class="col-6">Eligible years of study</dt><dd class="col-6">{{ study.eligible_year_min }} to {{ study.eligible_year_max }}</dd>
     <dt class="col-6">Significance level</dt><dd class="col-6">{{ study.significance_level }}</dd>
+    <dt class="col-6">Minimum n for statistical tests</dt><dd class="col-6">{{ study.min_analysis_n }} per group</dd>
   </dl></div></div></div>
   <div class="col-lg-6"><div class="panel h-100"><div class="panel-head">Measurement windows</div><div class="panel-body"><dl class="row mb-0">
     <dt class="col-5">Baseline</dt><dd class="col-7">{% if baseline_window %}{{ baseline_window.0|date:"d M Y" }} to {{ baseline_window.1|date:"d M Y" }}{% else %}<span class="text-secondary">Not set</span>{% endif %}</dd>

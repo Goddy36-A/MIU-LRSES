@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Data exports{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3"><div><h1 class="page-title">Data exports</h1><p class="page-sub">{{ study.title }}</p></div>
+  <a class="btn btn-outline-primary align-self-start" href="{% url 'analytics:dictionary' %}">Data dictionary</a></div>
+<div class="pending-note mb-3" role="note">Exports identify participants by their anonymous research code only. They contain no names, registration numbers, emails or free text, and only participants whose data may be used
+  (eligible, consent given, enrolled; withdrawn participants only if they kept their data). Values are written exactly as stored. Downloads are recorded in the audit log. Handle the files as confidential research data.</div>
+<div class="panel mb-3"><div class="panel-head">Datasets</div><div class="table-responsive"><table class="table mb-0 align-middle">
+  <thead><tr><th>Dataset</th><th>What it contains</th><th>Rows</th><th><span class="visually-hidden">Download</span></th></tr></thead><tbody>
+  {% for item in datasets %}<tr><td class="fw-semibold">{{ item.dataset.title }}</td><td class="small">{{ item.dataset.description }}</td><td>{{ item.rows }}</td>
+    <td class="text-end"><form method="post" action="{% url 'analytics:export_download' item.dataset.key %}">{% csrf_token %}<button class="btn btn-sm btn-primary" type="submit">Download CSV</button></form></td></tr>{% endfor %}
+  <tr><td class="fw-semibold">Data quality report</td><td class="small">Findings of the checks below, as a file.</td><td>{{ issues|length }}</td>
+    <td class="text-end"><form method="post" action="{% url 'analytics:export_download' 'data_quality_report' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-primary" type="submit">Download CSV</button></form></td></tr>
+  </tbody></table></div></div>
+<div class="panel"><div class="panel-head">Data quality checks</div>
+  <div class="table-responsive"><table class="table mb-0"><thead><tr><th>Severity</th><th>Finding</th><th>Affected</th><th>Research codes (up to 10)</th></tr></thead><tbody>
+  {% for i in issues %}<tr><td>{% if i.severity == 'error' %}<span class="badge text-bg-danger">Fix before analysis</span>{% else %}<span class="badge text-bg-warning">Note</span>{% endif %}</td><td>{{ i.message }}</td><td>{{ i.count }}</td><td class="small">{{ i.examples|join:", " }}</td></tr>
+  {% empty %}<tr><td colspan="4" class="text-center text-secondary py-3">No problems found by the automatic checks.</td></tr>{% endfor %}
+  </tbody></table></div></div>
+<p class="small text-secondary mt-2">The checks only report problems; they never change or delete any record. Fix errors in the source records, then export again.</p>
+{% endblock %}

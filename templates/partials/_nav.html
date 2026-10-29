@@ -49,6 +49,10 @@
   <li><a class="nav-link {% if ns == 'research' and name|slice:':7' == 'outcome' %}active{% endif %}" href="{% url 'research:outcome_list' %}">Outcome definitions</a></li>
   <li class="nav-heading">Participants</li>
   <li><a class="nav-link {% if ns == 'research' and name|slice:':11' == 'participant' %}active{% endif %}" href="{% url 'research:participant_list' %}">Participants</a></li>
+  <li class="nav-heading">Analytics</li>
+  <li><a class="nav-link {% if ns == 'analytics' and name == 'dashboard' %}active{% endif %}" href="{% url 'analytics:dashboard' %}">Research dashboard</a></li>
+  <li><a class="nav-link {% if ns == 'analytics' and name == 'analysis' %}active{% endif %}" href="{% url 'analytics:analysis' %}">Statistical analysis</a></li>
+  <li><a class="nav-link {% if ns == 'analytics' and name == 'exports' or name == 'dictionary' %}active{% endif %}" href="{% url 'analytics:exports' %}">Data exports</a></li>
   <li class="nav-heading">Data</li>
   <li><a class="nav-link {% if ns == 'research' and name|slice:':11' == 'measurement' %}active{% endif %}" href="{% url 'research:measurement_list' %}">Measurements</a></li>
   <li><a class="nav-link {% if ns == 'research' and name == 'completeness' %}active{% endif %}" href="{% url 'research:completeness' %}">Data completeness</a></li>

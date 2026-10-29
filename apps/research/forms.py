@@ -14,7 +14,18 @@ class ResearchStudyForm(BootstrapFormMixin, forms.ModelForm):
         fields = ["title", "description", "status", "is_active", "ethics_status", "ethics_reference",
                   "population_size", "target_sample_size", "target_intervention", "target_control", "intervention_weeks",
                   "eligible_year_min", "eligible_year_max", "baseline_start", "baseline_end", "intervention_start",
-                  "intervention_end", "significance_level", "protocol_notes", "analysis_plan_notes"]
+                  "intervention_end", "significance_level", "min_analysis_n", "protocol_notes", "analysis_plan_notes"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Added in Phase 7: leaving it blank keeps the current value (or the default for a new study).
+        self.fields["min_analysis_n"].required = False
+
+    def clean_min_analysis_n(self):
+        value = self.cleaned_data.get("min_analysis_n")
+        if value is None:
+            value = self.instance.min_analysis_n if self.instance.pk else ResearchStudy._meta.get_field("min_analysis_n").default
+        return value
 
 
 class OutcomeDefinitionForm(BootstrapFormMixin, forms.ModelForm):

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Research dashboard{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3"><div><h1 class="page-title">Research dashboard</h1><p class="page-sub">{{ study.title }} · {{ study.get_status_display }}</p></div>
+  <div class="d-flex gap-2 align-self-start"><a class="btn btn-primary" href="{% url 'analytics:analysis' %}">Statistical analysis</a><a class="btn btn-outline-primary" href="{% url 'analytics:exports' %}">Data exports</a></div></div>
+<div class="pending-note mb-3" role="note">{{ design_note }} Counts are real records only; planning figures (target {{ overview.target_sample }}) are not enrolment.</div>
+{% if issue_errors %}<div class="alert alert-danger" role="alert"><strong>{{ issue_errors }} data problem{{ issue_errors|pluralize }} to fix before analysis.</strong> <a href="{% url 'analytics:exports' %}">See the data quality checks</a>.</div>
+{% elif issue_warnings %}<div class="alert alert-warning" role="alert">{{ issue_warnings }} note{{ issue_warnings|pluralize }} about missing or incomplete data. <a href="{% url 'analytics:exports' %}">See details</a>.</div>{% endif %}
+
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ overview.enrolled }}</div><div class="stat-label">Enrolled (target {{ overview.target_sample }})</div></div></div>
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ groups.intervention }}</div><div class="stat-label">Intervention (target {{ overview.target_intervention }})</div></div></div>
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ groups.control }}</div><div class="stat-label">Control (target {{ overview.target_control }})</div></div></div>
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ overview.consent_given }}</div><div class="stat-label">Consent given</div></div></div>
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ overview.consent_declined }}</div><div class="stat-label">Consent declined</div></div></div>
+  <div class="col-6 col-lg-2"><div class="panel stat"><div class="stat-value">{{ overview.withdrawn }}</div><div class="stat-label">Withdrawn</div></div></div>
+</div>
+<div class="row g-3 mb-3">
+  <div class="col-lg-4"><div class="panel h-100"><div class="panel-head">Participants by group</div><div class="panel-body"><div style="position:relative;height:240px"><canvas id="groupChart" role="img" aria-label="Bar chart of participants in the intervention group, the control group and not yet allocated"></canvas></div>
+    {% if groups.0 %}<div class="small text-secondary mt-2">{{ groups.0 }} enrolled participant(s) not yet allocated.</div>{% endif %}</div></div></div>
+  <div class="col-lg-8"><div class="panel h-100"><div class="panel-head">Data completeness</div><div class="table-responsive"><table class="table mb-0">
+    <thead><tr><th>Period</th><th>Expected</th><th>Collected</th><th>Planned</th><th>Overdue</th><th>Missing</th><th>Completeness</th></tr></thead><tbody>
+    {% for p in by_period %}<tr><td>{{ p.period }}</td><td>{{ p.expected }}</td><td>{{ p.collected }}</td><td>{{ p.planned }}</td><td>{{ p.not_yet_collected }}</td><td>{{ p.missing }}</td><td class="fw-semibold">{% if p.rate is None %}<span class="text-secondary">n/a</span>{% else %}{{ p.rate }}%{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="7" class="text-secondary text-center py-3">No measurements have been planned yet.</td></tr>{% endfor %}
+    </tbody></table></div>
+    <div class="panel-body small text-secondary">Expected = planned rows for enrolled participants who have not withdrawn. "Overdue" = planned but the measurement window has ended. Per-outcome detail: <a href="{% url 'research:completeness' %}">Data completeness</a>.</div></div></div>
+</div>
+
+<div class="panel mb-3"><div class="panel-head">Outcomes by group (collected values only)</div><div class="panel-body">
+  {% if chart.outcomes %}<div style="position:relative;height:300px" class="mb-3"><canvas id="outcomeChart" role="img" aria-label="Grouped bar chart of mean percentage outcomes by group and period"></canvas></div>{% endif %}
+  <div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Outcome</th><th>Period</th><th>Group</th><th>n</th><th>Mean</th><th>SD</th><th>Median</th><th>Min to max</th><th>{{ ci_level }} CI of mean</th></tr></thead><tbody>
+  {% for s in summaries %}{% for per in s.periods %}{% for c in per.cells %}<tr>
+    <td>{% if forloop.first and forloop.parentloop.first %}{{ s.outcome.name }}{% endif %}</td><td>{% if forloop.first %}{{ per.period }}{% endif %}</td><td>{{ c.label }}</td>
+    <td>{{ c.summary.n }}</td><td>{{ c.summary.mean|default_if_none:"-" }}</td><td>{{ c.summary.sd|default_if_none:"-" }}</td><td>{{ c.summary.median|default_if_none:"-" }}</td>
+    <td>{% if c.summary.n %}{{ c.summary.min }} to {{ c.summary.max }}{% else %}-{% endif %}</td><td>{% if c.summary.ci_low is not None %}{{ c.summary.ci_low }} to {{ c.summary.ci_high }}{% else %}-{% endif %}</td></tr>{% endfor %}{% endfor %}
+  {% empty %}<tr><td colspan="9" class="text-secondary text-center py-3">No outcome definitions yet.</td></tr>{% endfor %}
+  </tbody></table></div>
+  <div class="small text-secondary mt-2">Attendance rate, assignment punctuality rate and academic assessment score are listed here when defined as outcomes. A "-" means no collected values yet. Tests: <a href="{% url 'analytics:analysis' %}">Statistical analysis</a>.</div>
+</div></div>
+
+<div class="row g-3 mb-3">
+  <div class="col-lg-6"><div class="panel h-100"><div class="panel-head">Reminder interaction</div><div class="table-responsive"><table class="table mb-0">
+    <thead><tr><th>Group</th><th>Participants</th><th>With reminders</th><th>Delivered</th><th>Opened</th><th>Opened %</th></tr></thead><tbody>
+    {% for r in reminders.rows %}<tr><td>{{ r.label }}</td><td>{{ r.participants }}</td><td>{{ r.with_reminders }}</td><td>{{ r.delivered }}</td><td>{{ r.read }}</td><td>{% if r.read_rate is None %}<span class="text-secondary">n/a</span>{% else %}{{ r.read_rate }}%{% endif %}</td></tr>{% endfor %}
+    </tbody></table></div>
+    <div class="panel-body small text-secondary">Reminders delivered to the in-app notifications, {{ reminders.window }}. "Opened" = marked read; it does not show that the student acted on it. The control group should have none.</div></div></div>
+  <div class="col-lg-6"><div class="panel h-100"><div class="panel-head">Questionnaire response rates</div><div class="table-responsive"><table class="table mb-0">
+    <thead><tr><th>Questionnaire</th><th>Assigned</th><th>Submitted</th><th>Response rate</th></tr></thead><tbody>
+    {% for q in questionnaires %}<tr><td><a href="{% url 'questionnaires:detail' q.questionnaire.pk %}">{{ q.questionnaire.title }}</a></td><td>{{ q.eligible_to_answer }}</td><td>{{ q.submitted }}</td><td>{% if q.response_rate is None %}<span class="text-secondary">n/a</span>{% else %}{{ q.response_rate }}%{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="4" class="text-secondary text-center py-3">No questionnaires yet.</td></tr>{% endfor %}
+    </tbody></table></div><div class="panel-body small text-secondary">Rate = submitted / assigned participants who have not withdrawn.</div></div></div>
+</div>
+
+<div class="panel mb-3"><div class="panel-head">Technology acceptance (TAM) construct summaries</div>
+  <div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Questionnaire</th><th>Construct</th><th>Group</th><th>n</th><th>Mean (SD)</th><th>Cronbach's alpha</th></tr></thead><tbody>
+  {% for t in tam %}{% for c in t.constructs %}{% for label, s in c.groups %}<tr><td>{% if forloop.first and forloop.parentloop.first %}{{ t.questionnaire.title|truncatechars:48 }}{% endif %}</td><td>{% if forloop.first %}{{ c.label }}{% endif %}</td><td>{{ label }}</td><td>{{ s.n }}</td>
+    <td>{{ s.mean|default_if_none:"-" }}{% if s.sd is not None %} ({{ s.sd }}){% endif %}</td><td>{% if forloop.first %}{% if c.alpha is not None %}{{ c.alpha }}{% else %}<span class="text-secondary">n/a</span>{% endif %}{% endif %}</td></tr>{% endfor %}{% endfor %}
+  {% empty %}<tr><td colspan="6" class="text-secondary text-center py-3">No submitted TAM responses yet.</td></tr>{% endfor %}
+  </tbody></table></div>
+  <div class="panel-body small text-secondary">Scores run from 1 (strongly disagree) to 5 (strongly agree); reverse-scored items are flipped. Participants who skipped an item of a construct have no score for it.</div></div>
+{{ chart.groups|json_script:"group-data" }}{{ chart.outcomes|json_script:"outcome-labels" }}{{ chart.datasets|json_script:"outcome-datasets" }}
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'vendor/chartjs/chart.umd.js' %}"></script>
+<script>
+  const g = JSON.parse(document.getElementById('group-data').textContent);
+  new Chart(document.getElementById('groupChart'), {type: 'bar', data: {labels: g.labels, datasets: [{label: 'Participants', data: g.values, backgroundColor: ['#0b6b66', '#1d3652', '#b8c4d0']}]},
+    options: {maintainAspectRatio: false, plugins: {legend: {display: false}}, scales: {y: {beginAtZero: true, ticks: {precision: 0}}}}});
+  const canvas = document.getElementById('outcomeChart');
+  if (canvas) {
+    const colors = ['#9bd0cc', '#0b6b66', '#c9d3de', '#1d3652'];
+    const sets = JSON.parse(document.getElementById('outcome-datasets').textContent);
+    new Chart(canvas, {type: 'bar', data: {labels: JSON.parse(document.getElementById('outcome-labels').textContent),
+      datasets: sets.map((s, i) => ({label: s.label, data: s.data, backgroundColor: colors[i % colors.length]}))},
+      options: {maintainAspectRatio: false, scales: {y: {min: 0, max: 100, title: {display: true, text: 'Mean (%)'}}}}});
+  }
+</script>
+{% endblock %}

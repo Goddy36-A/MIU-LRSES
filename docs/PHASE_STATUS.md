@@ -8,8 +8,8 @@
 | 4 | Attendance and performance: attendance with audit trail, assignments, submissions, assessments, marks, reports | Done |
 | 5 | Research study: participants, consent, allocation records, baseline/post measurements, control-group reminder exclusion | Done |
 | 6 | Questionnaires: TAM constructs, Likert/choice/text items, assignment, student answering, completeness and descriptive reports | Done |
-| 7 | Analytics and exports | Not started |
-| 8 | Final verification and documentation | In progress: route/menu checks, user guides and verification checklist done for Phases 1-6; analytics/export docs wait for Phase 7 |
+| 7 | Analytics and exports: research dashboard, group comparisons, statistical analysis, data-quality checks, CSV exports, data dictionary | Done (452 tests pass in the full suite; not yet run on Windows) |
+| 8 | Final verification and documentation | In progress: route/menu checks, user guides and verification checklist done for Phases 1-6; analytics/export user guides still to be written (see docs/ANALYTICS.md and docs/DATA_DICTIONARY.md for the Phase 7 reference docs) |
 
 ## Phase 1 design decisions / assumptions
 - One primary role per user (`User.role`), exclusive; roles are not stacked.

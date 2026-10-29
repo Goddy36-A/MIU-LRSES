@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Statistical analysis{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3"><div><h1 class="page-title">Statistical analysis</h1><p class="page-sub">{{ study.title }} · significance level {{ alpha }} · tests need at least {{ study.min_analysis_n }} observations per group</p></div>
+  <a class="btn btn-outline-primary align-self-start" href="{% url 'analytics:dashboard' %}">Research dashboard</a></div>
+<div class="pending-note mb-3" role="note"><strong>Read this first.</strong> {{ design_note }}</div>
+{% for item in outcomes %}
+<h2 class="h4 mt-4">{{ item.outcome.name }} <span class="badge text-bg-light">{{ item.outcome.get_kind_display }}</span></h2>
+<p class="small text-secondary">{{ item.outcome.definition }}</p>
+{% if not item.collected %}<div class="pending-note mb-3" role="note">Analysis not yet available: no collected values exist for this outcome. Planned or missing measurements are not analysed.</div>{% endif %}
+{% for block in item.blocks %}{% include "analytics/_block.html" %}{% endfor %}
+{% empty %}<div class="panel panel-body text-secondary">No active outcome definitions. Add them under Outcome definitions.</div>{% endfor %}
+<h2 class="h4 mt-5">Technology Acceptance Model constructs</h2>
+{% for t in tam %}
+<h3 class="h5 mt-3">{{ t.questionnaire.title }} <span class="badge text-bg-light">{{ t.period }}</span></h3>
+{% for c in t.constructs %}
+<div class="panel mb-3"><div class="panel-head">{{ c.label }} ({{ c.items }} item{{ c.items|pluralize }})</div><div class="panel-body">
+  <div class="table-responsive"><table class="table table-sm align-middle mb-2"><thead><tr><th>Group</th><th>n</th><th>Mean (SD)</th><th>Median</th><th>Min to max</th><th>{{ ci_level }} CI of mean</th></tr></thead><tbody>
+    <tr class="table-light"><td>Everyone</td><td>{{ c.overall.n }}</td><td>{{ c.overall.mean|default_if_none:"-" }}{% if c.overall.sd is not None %} ({{ c.overall.sd }}){% endif %}</td><td>{{ c.overall.median|default_if_none:"-" }}</td><td>{% if c.overall.n %}{{ c.overall.min }} to {{ c.overall.max }}{% else %}-{% endif %}</td><td>{% if c.overall.ci_low is not None %}{{ c.overall.ci_low }} to {{ c.overall.ci_high }}{% else %}-{% endif %}</td></tr>
+    {% for label, s in c.groups %}<tr><td>{{ label }}</td><td>{{ s.n }}</td><td>{{ s.mean|default_if_none:"-" }}{% if s.sd is not None %} ({{ s.sd }}){% endif %}</td><td>{{ s.median|default_if_none:"-" }}</td><td>{% if s.n %}{{ s.min }} to {{ s.max }}{% else %}-{% endif %}</td><td>{% if s.ci_low is not None %}{{ s.ci_low }} to {{ s.ci_high }}{% else %}-{% endif %}</td></tr>{% endfor %}
+  </tbody></table></div>
+  <div class="small">Reliability (Cronbach's alpha): {% if c.alpha is not None %}<strong>{{ c.alpha }}</strong> from {{ c.alpha_n }} complete response{{ c.alpha_n|pluralize }}{% else %}not available ({{ c.alpha_note }}){% endif %}.
+    {{ c.incomplete }} response{{ c.incomplete|pluralize }} had an unanswered item for this construct and no score (not estimated).</div>
+  {% if c.comparison %}<div class="mt-3">{% with block=c.comparison %}{% include "analytics/_block.html" %}{% endwith %}</div>{% endif %}
+</div></div>
+{% endfor %}
+{% empty %}<div class="panel panel-body text-secondary">No questionnaire with TAM-tagged items yet.</div>{% endfor %}
+<p class="small text-secondary">Methods, assumptions and limitations: docs/ANALYTICS.md.</p>
+{% endblock %}

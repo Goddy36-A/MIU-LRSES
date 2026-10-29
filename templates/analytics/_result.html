@@ -1,0 +1,10 @@
+{% if not r.estimable %}<div class="small text-secondary">Not estimable: {{ r.note }}</div>{% else %}
+<dl class="row small mb-0">
+  <dt class="col-5">Test</dt><dd class="col-7">{{ r.test }}</dd>
+  <dt class="col-5">Statistic</dt><dd class="col-7">{{ r.statistic }}{% if r.df %} (df {{ r.df }}){% endif %}</dd>
+  <dt class="col-5">p-value (two-sided)</dt><dd class="col-7">{{ r.p_display }}{% if r.method %} <span class="text-secondary">({{ r.method }})</span>{% endif %}</dd>
+  {% if r.diff is not None %}<dt class="col-5">Mean difference</dt><dd class="col-7">{{ r.diff }}{% if r.ci_low is not None %} (CI {{ r.ci_low }} to {{ r.ci_high }}){% endif %}</dd>{% endif %}
+  {% if r.superiority is not None %}<dt class="col-5">P(intervention higher)</dt><dd class="col-7">{{ r.superiority }}</dd>{% endif %}
+  {% if r.effect %}<dt class="col-5">Effect size</dt><dd class="col-7">{{ r.effect.name }} = {{ r.effect.value }}{% if r.effect.ci_low is not None %} (CI {{ r.effect.ci_low }} to {{ r.effect.ci_high }}){% endif %}</dd>{% endif %}
+  {% if r.dropped_zero %}<dt class="col-5">Zero changes dropped</dt><dd class="col-7">{{ r.dropped_zero }}</dd>{% endif %}
+</dl>{% endif %}

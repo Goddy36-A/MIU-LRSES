@@ -79,6 +79,11 @@ class ResearchStudy(models.Model):
     significance_level = models.DecimalField(max_digits=4, decimal_places=3, default=Decimal("0.050"),
                                              validators=[MinValueValidator(Decimal("0.001")), MaxValueValidator(Decimal("0.200"))],
                                              help_text="Alpha level in the approved analysis plan (used by Phase 7).")
+    min_analysis_n = models.PositiveSmallIntegerField(
+        default=10, validators=[MinValueValidator(4), MaxValueValidator(500)], verbose_name="Minimum observations for statistical tests",
+        help_text="Inferential tests (p-values, confidence intervals) are shown only when each group has at least this many "
+                  "observations (this many pairs for before/after tests). Below it, only descriptive summaries are shown. "
+                  "Set it according to the approved analysis plan.")
     protocol_notes = models.TextField(blank=True)
     analysis_plan_notes = models.TextField(blank=True)
 
