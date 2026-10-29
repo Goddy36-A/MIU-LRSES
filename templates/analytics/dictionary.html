@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Data dictionary{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3"><div><h1 class="page-title">Research data dictionary</h1><p class="page-sub">Every field of every export: meaning, permitted values and how it is calculated.</p></div>
+  <div class="d-flex gap-2 align-self-start"><a class="btn btn-primary" href="{% url 'analytics:dictionary_csv' %}">Download as CSV</a><a class="btn btn-outline-primary" href="{% url 'analytics:exports' %}">Data exports</a></div></div>
+<p class="small text-secondary">Empty cells mean "not applicable or not available", never zero. Files are comma-separated UTF-8. Dates are ISO (YYYY-MM-DD); date-times carry a UTC offset (Africa/Kampala is +03:00).</p>
+{% for d in datasets %}
+<div class="panel mb-3"><div class="panel-head">{{ d.title }} <code class="ms-2">{{ d.key }}</code></div>
+  <div class="panel-body small pb-0">{{ d.description }}</div>
+  <div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Field</th><th>Meaning</th><th>Permitted values</th><th>How calculated</th></tr></thead><tbody>
+  {% for f in d.fields %}<tr><td><code>{{ f.name }}</code></td><td>{{ f.meaning }}</td><td>{{ f.values }}</td><td>{{ f.calc }}</td></tr>{% endfor %}
+  </tbody></table></div></div>
+{% endfor %}
+<div class="panel mb-3"><div class="panel-head">Data quality report <code class="ms-2">data_quality_report</code></div>
+  <div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Field</th><th>Meaning</th><th>Permitted values</th><th>How calculated</th></tr></thead><tbody>
+  {% for f in quality_fields %}<tr><td><code>{{ f.name }}</code></td><td>{{ f.meaning }}</td><td>{{ f.values }}</td><td>{{ f.calc }}</td></tr>{% endfor %}
+  </tbody></table></div></div>
+{% endblock %}

@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "apps.performance",
     "apps.research",
     "apps.questionnaires",
+    "apps.analytics",
 ]
 
 MIDDLEWARE = [
