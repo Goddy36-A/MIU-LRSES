@@ -7,7 +7,6 @@ What it does (safe to run again; finished steps are skipped):
   3. installs the requirements
   4. creates/updates the database (migrations)
   5. creates your administrator account (asks you; typing the password is hidden)
-  6. optionally loads clearly labelled SYNTHETIC demo data
 
 Normally you do not run this directly: double-click start.bat (Windows) or run ./start.sh.
 """
@@ -24,7 +23,7 @@ IS_WIN = os.name == "nt"
 VPY = VENV / ("Scripts/python.exe" if IS_WIN else "bin/python")
 MARKER = ROOT / ".setup_done"
 MIN_PY = (3, 10)
-TOTAL = 6
+TOTAL = 5
 
 CREATE_ADMIN = '''
 import os, sys
@@ -76,10 +75,6 @@ def ask_secret(prompt):
     return getpass.getpass(f"{prompt} (typing is hidden): ")
 
 
-def yes(prompt):
-    return input(f"{prompt} [y/N]: ").strip().lower() in ("y", "yes")
-
-
 def has_admin():
     return manage("shell", "-c", HAS_ADMIN, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
 
@@ -98,8 +93,6 @@ def main():
     p.add_argument("--admin-user")
     p.add_argument("--admin-email", default="")
     p.add_argument("--admin-password")
-    p.add_argument("--demo", action="store_true", help="load synthetic demo data")
-    p.add_argument("--demo-password", help="password for the demo accounts")
     p.add_argument("--no-prompt", action="store_true", help="never ask questions (for automation)")
     args = p.parse_args()
     interactive = not args.no_prompt and sys.stdin.isatty()
@@ -166,23 +159,6 @@ def main():
     if admin_name:
         say(f"Administrator '{admin_name}' created.")
 
-    step(6, "Demo data (optional)")
-    demo_loaded = False
-    want_demo = args.demo or (interactive and yes(
-        "Load SYNTHETIC demo data (invented students, lecturers and lectures) so you can try the system?"))
-    if want_demo:
-        pw = args.demo_password
-        if not pw and interactive:
-            pw = ask_secret("Choose a password for the demo accounts")
-        if not pw:
-            say("Skipped: a demo password is needed (--demo-password).")
-        elif manage("seed_demo_data", "--password", pw).returncode == 0:
-            demo_loaded = True
-        else:
-            say("Demo data could not be loaded; the rest of the setup is fine.")
-    else:
-        say("Skipped.")
-
     # Only mark setup as finished when someone can actually sign in; otherwise start.bat will ask again.
     finished = has_admin()
     if finished:
@@ -198,8 +174,6 @@ def main():
         return 1
     say(" Start the system:  double-click start.bat (Windows) or run ./start.sh")
     say(" Then open:         http://127.0.0.1:8000/")
-    if demo_loaded:
-        say(" Demo logins (SYNTHETIC, password = the one you chose): demo_lecturer1, demo_student01, demo_researcher")
     say("=" * 60)
 
 

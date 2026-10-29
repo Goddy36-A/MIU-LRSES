@@ -2,7 +2,6 @@
 routes and menu items added in later phases are covered without editing this file."""
 import re
 
-from django.core.management import call_command
 from django.test import TestCase
 from django.urls import URLPattern, URLResolver, get_resolver, reverse
 
@@ -101,36 +100,6 @@ class NavigationLinkTests(TestCase):
             self.assertIn("MIU-LRSES", html)
             self.assertIn(Role(role).label, html)
             self.client.logout()
-
-
-class DemoDataCommandTests(TestCase):
-    def test_seed_is_labelled_idempotent_and_removable(self):
-        from apps.timetables.models import LectureSession
-        call_command("seed_demo_data", "--password", PW, verbosity=0)
-        users = User.objects.filter(username__startswith="demo_").count()
-        sessions = LectureSession.objects.count()
-        self.assertEqual(users, 11)  # 2 lecturers + 8 students + 1 researcher
-        self.assertGreater(sessions, 0)
-        self.assertTrue(all("SYNTHETIC" in s.topic for s in LectureSession.objects.all()))
-        call_command("seed_demo_data", "--password", PW, verbosity=0)  # second run adds nothing
-        self.assertEqual((User.objects.filter(username__startswith="demo_").count(), LectureSession.objects.count()), (users, sessions))
-        self.assertTrue(User.objects.get(username="demo_student01").check_password(PW))
-        call_command("seed_demo_data", "--remove", verbosity=0)
-        self.assertEqual(User.objects.filter(username__startswith="demo_").count(), 0)
-        self.assertEqual(LectureSession.objects.count(), 0)
-
-    def test_password_is_required(self):
-        from django.core.management.base import CommandError
-        with self.assertRaises(CommandError):
-            call_command("seed_demo_data", verbosity=0)
-
-    def test_demo_lectures_have_no_conflicts(self):
-        from apps.timetables.models import LectureSession
-        from apps.timetables.services import find_conflicts
-        call_command("seed_demo_data", "--password", PW, verbosity=0)
-        for s in LectureSession.objects.all():
-            self.assertEqual(find_conflicts(offering=s.offering, lecturer=s.lecturer, venue=s.venue, start=s.start_at,
-                                            end=s.end_at, exclude_pk=s.pk), [], s)
 
 
 class OneClickSetupFilesTests(TestCase):
