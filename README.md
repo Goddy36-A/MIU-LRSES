@@ -114,6 +114,15 @@ Students see their own attendance, deadlines and results. Calculation rules (lat
 records, extensions, exemptions, weighting) are defined in [docs/ATTENDANCE_PERFORMANCE.md](docs/ATTENDANCE_PERFORMANCE.md).
 Missing attendance is never counted as absence and missing marks are never counted as zero.
 
+## University reference data
+Setup loads the Metropolitan International University programmes that can be verified from the university's own
+pages, and the research study profile (title and planning figures from the proposal, no dates, ethics status *Not
+recorded*). Academic years, semesters, courses, venues, lecturers, students and all collected data are entered by you
+from official records. See [docs/INSTITUTION_DATA.md](docs/INSTITUTION_DATA.md). To run it by hand:
+```
+python manage.py load_institution_data
+```
+
 ## Password reset
 Reset emails are printed to the console window running `runserver`; no email is actually sent unless you
 configure SMTP via `MIU_LRSES_EMAIL_BACKEND` and Django's `EMAIL_*` settings.
