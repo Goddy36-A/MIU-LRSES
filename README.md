@@ -4,7 +4,7 @@ Django web application supporting the study *"Evaluating the Impact of Lecture R
 Engagement and Academic Performance: A Case Study of Metropolitan International University, Biharwe Division,
 Mbarara City."*
 
-**Status: Phase 6 of 8 (questionnaires) complete.** Analytics and exports are not built yet. See `docs/PHASE_STATUS.md`.
+**Status: Phases 1-7 complete; Phase 8 (final verification and documentation) in progress.** Phase 7 delivers research analytics and exports. See [`docs/PHASE_STATUS.md`](docs/PHASE_STATUS.md).
 
 No institutional ethical approval is claimed by this software. No research data or findings are included.
 
@@ -63,21 +63,22 @@ Then open http://127.0.0.1:8000/ and sign in with the account you created.
 ```
 python manage.py test
 ```
-Phases 1-6 plus project-wide checks: 372 tests, all passing in the development sandbox run (Linux, Python 3.12, Django 5.2.18). Not yet run on Windows.
+The Phase 7 status reports **452 tests passing** in the full suite (development sandbox, Linux, Python 3.12, Django 5.2.18). The suite has not yet been run on Windows.
 
 ## User guides and verification
 The system starts empty: every record (users, programmes, courses, lectures, participants, marks) is entered by authorised users.
-Guides: `docs/USER_GUIDE_ADMIN.md`, `USER_GUIDE_LECTURER.md`, `USER_GUIDE_STUDENT.md`, `USER_GUIDE_RESEARCHER.md`,
+Guides: `docs/USER_GUIDE_ADMIN.md`, `docs/USER_GUIDE_LECTURER.md`, `docs/USER_GUIDE_STUDENT.md`, `docs/USER_GUIDE_RESEARCHER.md`,
 checklist `docs/VERIFICATION_CHECKLIST.md`. Project-wide tests in `apps/core/tests.py` automatically check that every route
-requires sign-in and that every menu link works for every role.
+requires sign-in and that every menu link works for every role. Phase 7 reference documentation is in [`docs/ANALYTICS.md`](docs/ANALYTICS.md)
+and [`docs/DATA_DICTIONARY.md`](docs/DATA_DICTIONARY.md); analytics/export user guides remain part of Phase 8.
 
-## Roles and what each can do now
-| Role | Can do (Phases 1-4) |
+## Roles and access
+| Role | Main capabilities |
 |---|---|
-| System administrator | Everything below: user accounts, audit log, programmes, courses, academic years, semesters, course offerings, student and lecturer registration, enrolment (single and bulk), venues, all lectures (create, edit details, reschedule, cancel), reminder intervals and on/off switch, scheduled-reminder list, processing runs, attendance on any lecture, attendance rules, assignments, assessments, marks, all course reports, Django Admin |
-| Lecturer | View assigned courses and rosters; view, schedule, reschedule and cancel lectures; record and correct attendance; create assignments and assessments; record submissions and marks; view attendance and performance reports - **all only for offerings assigned to them** |
-| Student | Answer own assigned research questionnaires; view own courses and own timetable (upcoming/past, cancelled lectures marked); receive, read and mark as read their own in-app lecture reminders and schedule-change notices; view own attendance, assignment deadlines and results |
-| Researcher | Study settings, outcome definitions, participant registration, eligibility, consent, enrolment, group allocation records, withdrawal, baseline/post-intervention measurements, data completeness (see `docs/RESEARCH.md`), questionnaires and TAM reports (see `docs/QUESTIONNAIRES.md`). The administrator can edit study settings only, not participant data. |
+| System administrator | User accounts and audit log; programmes, courses, academic years, semesters, course offerings, student and lecturer registration, enrolment and institutional setup. Administrators do not have access to individual participant research data. |
+| Lecturer | View assigned courses and rosters; manage lectures and attendance; create assignments and assessments; record submissions and marks; view relevant course reports. |
+| Student | View own courses and timetable; receive and manage own in-app lecture reminders; view own attendance, deadlines and results; answer own assigned research questionnaires. |
+| Researcher | Configure the study and outcomes; manage participants, eligibility, consent, enrolment, group allocation, withdrawal and measurements; manage questionnaires; use the analytics dashboard, statistical analysis, data-quality checks and research exports. |
 
 Roles are exclusive and enforced on the server (403 for the wrong role, 404 for another lecturer's records).
 A researcher does not inherit administrator rights. Only administrators and superusers can open `/django-admin/`.
@@ -113,6 +114,43 @@ assignments and assessments from the sidebar, and record submissions, extensions
 Students see their own attendance, deadlines and results. Calculation rules (late and excused handling, missing
 records, extensions, exemptions, weighting) are defined in [docs/ATTENDANCE_PERFORMANCE.md](docs/ATTENDANCE_PERFORMANCE.md).
 Missing attendance is never counted as absence and missing marks are never counted as zero.
+
+## Research study (Phase 5)
+Researchers can manage study settings and outcome definitions; register participants; record eligibility and consent;
+enrol and allocate participants; document withdrawals and data handling; and record baseline and post-intervention
+measurements. The system records researcher-entered group allocations and does not randomise participants. Control-group
+reminder exclusion is supported. Study workflows and assumptions are documented in the researcher guide and
+[`docs/PHASE_STATUS.md`](docs/PHASE_STATUS.md).
+
+## Questionnaires (Phase 6)
+Researchers can create and assign questionnaires with TAM constructs and Likert, choice or text questions. Students
+can answer their own assigned questionnaires. The system tracks response completeness and provides descriptive
+reporting; reverse-scored items are supported. See the researcher and student guides and [`docs/PHASE_STATUS.md`](docs/PHASE_STATUS.md).
+
+## Analytics and exports (Phase 7)
+Researcher-only analytics are available under `/analytics/` and through the researcher menu:
+
+- **Dashboard:** enrollment and group counts, baseline/post data completeness, outcome summaries by group and period,
+  reminder interaction, questionnaire response rates, TAM summaries and data-quality alerts.
+- **Statistical analysis:** descriptive summaries and eligible group/before-after comparisons for outcomes and TAM
+  constructs. Reports include tests, confidence intervals and effect sizes where estimable. The study's significance
+  level and minimum analysis sample size govern test availability; below the minimum, descriptive results are shown
+  without inferential tests.
+- **Data-quality checks:** report inconsistencies, duplicates and missing or overdue data; checks never change records.
+- **CSV exports:** nine research datasets plus a data-quality report, with row counts and a field-by-field data
+  dictionary. Downloads are researcher-only, CSRF-protected, POST-only, audited and sent with no-store headers.
+- **Privacy and interpretation safeguards:** analysis/export eligibility follows consent, enrolment and withdrawal
+  choices; non-collected values are not treated as zero; exports use research codes, omit direct identifiers and free
+  text, preserve stored values, and neutralise spreadsheet formula-like text. Results are associations, not proof of
+  causation; multiple-testing correction and ANCOVA are not implemented.
+
+See [`docs/ANALYTICS.md`](docs/ANALYTICS.md) for methods, assumptions and limitations, and
+[`docs/DATA_DICTIONARY.md`](docs/DATA_DICTIONARY.md) for the exported fields. To regenerate the Markdown data dictionary:
+```
+python manage.py export_data_dictionary
+```
+Phase 8 remains in progress: final verification and analytics/export user guides are still outstanding, and the full suite
+has not yet been run on Windows.
 
 ## University reference data
 Setup loads the Metropolitan International University programmes that can be verified from the university's own
